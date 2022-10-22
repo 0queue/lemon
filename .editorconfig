@@ -1,0 +1,5 @@
+[*.{kt,kts}]
+# noinspection EditorConfigKeyCorrectness
+ktlint_disabled_rules = filename, multiline-if-else
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
