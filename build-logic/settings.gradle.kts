@@ -1,15 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 pluginManagement {
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
     }
-
-    includeBuild("build-logic")
 }
 
 dependencyResolutionManagement {
@@ -21,10 +17,10 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
-            from(files("libs.versions.toml"))
+            from(files("../libs.versions.toml"))
         }
     }
 }
 
-rootProject.name = "lemon"
-include(":app")
+rootProject.name = "build-logic"
+include("convention")

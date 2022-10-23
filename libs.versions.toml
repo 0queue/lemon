@@ -2,6 +2,7 @@
 android-plugin = "7.3.1"
 kotlin = "1.7.20"
 compose = "1.3.0-rc01"
+compose-compiler = "1.3.2"
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -19,3 +20,7 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
 androidx-core = "androidx.core:core-ktx:1.9.0"
 androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+
+# for build-logic only
+gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

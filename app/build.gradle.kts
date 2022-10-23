@@ -1,17 +1,13 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    alias(libs.plugins.com.android.application)
-    alias(libs.plugins.org.jetbrains.kotlin.android)
+    id("dev.thomasharris.lemon.application")
 }
 
 android {
     namespace = "dev.thomasharris.lemon"
-    compileSdk = 33
 
     defaultConfig {
         applicationId = "dev.thomasharris.lemon"
-        minSdk = 23
-        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -19,6 +15,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+        }
+
         release {
             isMinifyEnabled = false
 
@@ -27,16 +27,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-    }
-
-    compileOptions.isCoreLibraryDesugaringEnabled = true
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
     }
 }
 
