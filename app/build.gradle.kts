@@ -42,4 +42,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(projects.core.lobstersApi)
+    implementation(libs.kotlinx.coroutines.android)
 }

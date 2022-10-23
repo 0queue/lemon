@@ -3,4 +3,7 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.jvm)
 }
 
-val whenWillTheyFixThisBug = "never"
+dependencies {
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+}

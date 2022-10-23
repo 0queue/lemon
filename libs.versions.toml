@@ -22,6 +22,12 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-core = "androidx.core:core-ktx:1.9.0"
 androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
+ktor-client-core = "io.ktor:ktor-client-core:2.1.2"
+ktor-client-android = "io.ktor:ktor-client-android:2.1.2"
+
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+kotlinx-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+
 # for build-logic only
 gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
