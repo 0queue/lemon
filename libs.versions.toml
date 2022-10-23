@@ -8,6 +8,7 @@ compose-compiler = "1.3.2"
 com-android-application = { id = "com.android.application", version.ref = "android-plugin" }
 com-android-library = { id = "com.android.library", version.ref = "android-plugin" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [libraries]
 desugar = "com.android.tools:desugar_jdk_libs:1.1.8"

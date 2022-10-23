@@ -13,12 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import dev.thomasharris.lemon.lobstersapi.ExampleComposable
 import dev.thomasharris.lemon.ui.theme.LemonForLobstersTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             LemonForLobstersTheme {
                 // A surface container using the 'background' color from the theme
@@ -33,7 +33,6 @@ class MainActivity : ComponentActivity() {
                         Greeting(
                             name = "Android",
                         )
-                        ExampleComposable()
                     }
                 }
             }
