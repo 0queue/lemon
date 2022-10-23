@@ -1,6 +1,7 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("dev.thomasharris.lemon.application")
+    id("dev.thomasharris.lemon.compose")
 }
 
 android {
@@ -31,8 +32,6 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring(libs.desugar)
-
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.androidx.activity)
@@ -41,4 +40,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(projects.core.lobstersApi)
 }
