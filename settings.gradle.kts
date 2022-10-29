@@ -29,3 +29,4 @@ dependencyResolutionManagement {
 rootProject.name = "lemon"
 include(":app")
 include(":core:lobsters-api")
+include(":core:model")

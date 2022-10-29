@@ -2,6 +2,9 @@ package dev.thomasharris.lemon.lobstersapi
 
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.runSuspendCatching
+import dev.thomasharris.lemon.model.LobstersComment
+import dev.thomasharris.lemon.model.LobstersStory
+import dev.thomasharris.lemon.model.LobstersUser
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -19,8 +22,10 @@ class LobstersService(
 ) {
     suspend fun getPage(
         index: Int,
-    ): Result<List<StoryNetworkEntity>, Throwable> = runSuspendCatching {
-        client.get("page/$index.json").body()
+    ): Result<List<LobstersStory>, Throwable> = runSuspendCatching {
+        client.get("page/$index.json")
+            .body<List<StoryNetworkEntity>>()
+            .map(StoryNetworkEntity::asModel)
     }
 }
 
@@ -56,6 +61,20 @@ data class StoryNetworkEntity(
     val comments: List<CommentNetworkEntity>? = null,
 )
 
+fun StoryNetworkEntity.asModel(): LobstersStory = LobstersStory(
+    shortId = shortId,
+    shortIdUrl = shortIdUrl,
+    createdAt = createdAt,
+    title = title,
+    url = url,
+    score = score,
+    commentCount = commentCount,
+    description = description,
+    submitter = submitter.asModel(),
+    tags = tags,
+    comments = comments?.map(CommentNetworkEntity::asModel) ?: emptyList(),
+)
+
 @Serializable
 data class CommentNetworkEntity(
     @SerialName("short_id") val shortId: ShortId,
@@ -71,6 +90,20 @@ data class CommentNetworkEntity(
     @SerialName("commenting_user") val commentingUser: UserNetworkEntity,
 )
 
+fun CommentNetworkEntity.asModel() = LobstersComment(
+    shortId = shortId,
+    shortIdUrl = shortIdUrl,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+    isDeleted = isDeleted,
+    isModerated = isModerated,
+    score = score,
+    comment = comment,
+    url = url,
+    indentLevel = indentLevel,
+    commentingUser = commentingUser.asModel(),
+)
+
 @Serializable
 data class UserNetworkEntity(
     val username: String,
@@ -83,6 +116,19 @@ data class UserNetworkEntity(
     @SerialName("invited_by_user") val invitedByUser: String? = null,
     @SerialName("github_username") val githubUsername: String? = null,
     @SerialName("twitter_username") val twitterUsername: String? = null,
+)
+
+fun UserNetworkEntity.asModel() = LobstersUser(
+    username = username,
+    createdAt = createdAt,
+    isAdmin = isAdmin,
+    about = about,
+    isModerator = isModerator,
+    karma = karma,
+    avatarUrl = avatarUrl,
+    invitedByUser = invitedByUser,
+    githubUsername = githubUsername,
+    twitterUsername = twitterUsername,
 )
 
 @Serializable

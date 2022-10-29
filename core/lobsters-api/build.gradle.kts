@@ -10,9 +10,11 @@ dependencies {
     implementation(libs.ktor.client.contentnegotiation)
     implementation(libs.ktor.kotlinx.serialization)
 
-    api(libs.kotlin.result)
+    implementation(libs.kotlin.result)
     implementation(libs.kotlin.result.coroutines)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
+
+    implementation(projects.core.model)
 }

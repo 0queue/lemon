@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.michaelbull.result.unwrap
 import dev.thomasharris.lemon.lobstersapi.LobstersService
-import dev.thomasharris.lemon.lobstersapi.StoryNetworkEntity
+import dev.thomasharris.lemon.model.LobstersStory
 import dev.thomasharris.lemon.ui.theme.LemonForLobstersTheme
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                     ) {
                         var msg by remember {
-                            mutableStateOf(emptyList<StoryNetworkEntity>())
+                            mutableStateOf(emptyList<LobstersStory>())
                         }
 
                         LaunchedEffect(Unit) {
