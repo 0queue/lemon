@@ -13,5 +13,6 @@ data class LobstersStory(
     val description: String,
     val submitter: LobstersUser,
     val tags: List<String>,
-    val comments: List<LobstersComment>,
+    // if null, this is the dehydrated model from a page
+    val comments: List<LobstersComment>?,
 )
