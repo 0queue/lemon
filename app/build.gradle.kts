@@ -43,6 +43,7 @@ dependencies {
 
     implementation(projects.core.lobstersApi)
     implementation(projects.core.model)
+    implementation(projects.core.data)
     implementation(projects.core.database)
 
     implementation(libs.kotlinx.coroutines.android)
