@@ -54,10 +54,13 @@ class MainActivity : ComponentActivity() {
 
                         LazyColumn {
                             items(msg) { story ->
-                                Text(
-                                    modifier = Modifier.padding(16.dp),
-                                    text = story.title,
-                                )
+
+                                Column(
+                                    modifier = Modifier.padding(8.dp),
+                                ) {
+                                    Text(text = story.title)
+                                    Text(text = story.createdAt.toString())
+                                }
                             }
                         }
                     }

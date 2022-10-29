@@ -12,9 +12,13 @@ com-android-library = { id = "com.android.library", version.ref = "android-plugi
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 org-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+app-cash-sqldelight = "app.cash.sqldelight:2.0.0-alpha04"
 
 [libraries]
 desugar = "com.android.tools:desugar_jdk_libs:1.1.8"
+
+app-cash-sqldelight-android-driver = "app.cash.sqldelight:android-driver:2.0.0-alpha04"
+app-cash-sqldelight-coroutines = "app.cash.sqldelight:coroutines-extensions-jvm:2.0.0-alpha04"
 
 androidx-activity = "androidx.activity:activity-compose:1.6.0"
 androidx-compose-material3 = "androidx.compose.material3:material3:1.0.0-beta03"

@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 internal data class StoryNetworkEntity(
     @SerialName("short_id") val shortId: ShortId,
     @SerialName("short_id_url") val shortIdUrl: String,
+    // these instants do not preserve timezone but I don't really need them
     @SerialName("created_at") val createdAt: Instant,
     val title: String,
     val url: String,
