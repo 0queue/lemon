@@ -65,11 +65,11 @@ class MainActivity : ComponentActivity() {
                                 Text("Increment")
                             }
 
-                            Button(
-                                onClick = throwawayViewModel::insertStories,
-                            ) {
-                                Text("Load")
-                            }
+//                            Button(
+//                                onClick = throwawayViewModel::insertStories,
+//                            ) {
+//                                Text("Load")
+//                            }
                         }
 
                         val listState = rememberLazyListState()

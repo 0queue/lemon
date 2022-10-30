@@ -3,6 +3,7 @@ package dev.thomasharris.lemon
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -13,6 +14,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.components.SingletonComponent
+import dev.thomasharris.lemon.core.data.LobstersMediator
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
 import dev.thomasharris.lemon.lobstersapi.LobstersService
@@ -32,11 +34,13 @@ object ThrowawayModule {
     fun provideLobstersService() = LobstersService()
 }
 
+@OptIn(ExperimentalPagingApi::class)
 @HiltViewModel
 class ThrowawayViewModel @Inject constructor(
     private val lobstersService: LobstersService,
     private val lobstersDatabase: LobstersDatabase,
     private val pagingSourceFactory: @JvmSuppressWildcards () -> PagingSource<Int, Story>,
+    private val remoteMediator: LobstersMediator,
 ) : ViewModel() {
 
     val counterState = MutableStateFlow(0)
@@ -47,6 +51,7 @@ class ThrowawayViewModel @Inject constructor(
             prefetchDistance = 2,
         ),
         pagingSourceFactory = pagingSourceFactory,
+        remoteMediator = remoteMediator,
     ).flow.cachedIn(viewModelScope)
 
     suspend fun getPage(): List<LobstersStory> {
