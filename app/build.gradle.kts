@@ -2,6 +2,7 @@
 plugins {
     id("dev.thomasharris.lemon.application")
     id("dev.thomasharris.lemon.compose")
+    id("dev.thomasharris.lemon.hilt")
 }
 
 android {
@@ -40,6 +41,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(projects.core.lobstersApi)
     implementation(projects.core.model)

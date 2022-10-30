@@ -22,6 +22,11 @@ gradlePlugin {
             id = "dev.thomasharris.lemon.compose"
             implementationClass = "LemonComposeConventionPlugin"
         }
+
+        register("hilt") {
+            id = "dev.thomasharris.lemon.hilt"
+            implementationClass = "LemonHiltConventionPlugin"
+        }
     }
 }
 

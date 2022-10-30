@@ -51,8 +51,14 @@ CREATE TABLE comment (
 --     status INTEGER AS CommentStatus NOT NULL
 );
 
+countStories:
+SELECT count(*) FROM story;
+
 getStories:
-SELECT * FROM story;
+SELECT *
+FROM story
+LIMIT :limit
+OFFSET :offset;
 
 getUsers:
 SELECT * FROM user;
