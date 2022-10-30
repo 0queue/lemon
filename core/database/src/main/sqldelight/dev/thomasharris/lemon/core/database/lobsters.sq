@@ -60,6 +60,12 @@ FROM story
 LIMIT :limit
 OFFSET :offset;
 
+insertStory:
+INSERT OR REPLACE INTO story VALUES ?;
+
+deleteStories:
+DELETE FROM story;
+
 getUsers:
 SELECT * FROM user;
 

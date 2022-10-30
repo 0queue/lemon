@@ -1,6 +1,7 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("dev.thomasharris.lemon.library")
+    id("dev.thomasharris.lemon.hilt")
     alias(libs.plugins.app.cash.sqldelight)
 }
 
