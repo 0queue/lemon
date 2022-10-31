@@ -15,6 +15,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import javax.inject.Inject
 
+// so the repository could own the mediator? and create a paging source on demand?
+// or maybe the mediator references the repository? or the repo implements mediator?
+//
+// plan: expose three objects, PagingSourceFactory, RemoteMediator, Repository?
+//       repository might not even need to be exposed? also could
 class PageRepository @Inject constructor(
     private val lobstersService: LobstersService,
     private val lobstersDatabase: LobstersDatabase,
@@ -27,6 +32,12 @@ class LobstersMediator @Inject constructor(
     private val lobstersService: LobstersService,
     private val lobstersDatabase: LobstersDatabase,
 ) : RemoteMediator<Int, Story>() {
+
+    override suspend fun initialize(): InitializeAction {
+        // TODO check if out of date to trigger a refresh
+        return super.initialize()
+    }
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, Story>,
@@ -36,7 +47,6 @@ class LobstersMediator @Inject constructor(
             LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
             LoadType.APPEND -> state.lastItemOrNull()?.pageIndex?.plus(1) ?: 1
         }
-
 
         if (loadType == LoadType.REFRESH) withContext(Dispatchers.IO) {
             Log.i("TEH", "deleting")
@@ -71,5 +81,4 @@ class LobstersMediator @Inject constructor(
 
         return MediatorResult.Success(endOfPaginationReached = false)
     }
-
 }

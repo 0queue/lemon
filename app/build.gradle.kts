@@ -41,13 +41,17 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation)
 
     implementation(projects.core.lobstersApi)
     implementation(projects.core.model)
     implementation(projects.core.data)
     implementation(projects.core.database)
+    implementation(projects.feature.comments)
+    implementation(projects.feature.frontpage)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
