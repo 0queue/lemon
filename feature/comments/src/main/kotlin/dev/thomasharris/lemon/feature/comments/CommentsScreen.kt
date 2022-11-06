@@ -1,7 +1,6 @@
 package dev.thomasharris.lemon.feature.comments
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -25,9 +24,8 @@ fun CommentsScreen(
     storyId: String,
     onClick: (String) -> Unit,
 ) {
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         Text("story: $storyId")
         Button(

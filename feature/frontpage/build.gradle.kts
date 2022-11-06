@@ -1,8 +1,6 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    id("dev.thomasharris.lemon.library")
-    id("dev.thomasharris.lemon.compose")
-    id("dev.thomasharris.lemon.hilt")
+    id("dev.thomasharris.lemon.feature")
 }
 
 android {
@@ -10,19 +8,10 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.core)
-    implementation(libs.androidx.lifecycle)
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(projects.lemon.core.data)
+    // TODO remove this once I map to the actual model
+    implementation(projects.lemon.core.database)
 
-    implementation(libs.kotlinx.coroutines.android)
-
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation(libs.androidx.navigation)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 }

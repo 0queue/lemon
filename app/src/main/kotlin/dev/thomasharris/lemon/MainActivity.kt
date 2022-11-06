@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.thomasharris.lemon.feature.comments.installCommentsRoute
+import dev.thomasharris.lemon.feature.comments.navigateToComments
 import dev.thomasharris.lemon.feature.frontpage.installFrontPageRoute
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.ui.theme.LemonForLobstersTheme
@@ -36,18 +37,14 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        startDestination = "frontpage",
+                        startDestination = "/",
                     ) {
                         installFrontPageRoute(
-                            onClick = {
-                                navController.navigate("comments/$it")
-                            },
+                            onClick = navController::navigateToComments,
                         )
 
                         installCommentsRoute(
-                            onClick = {
-                                navController.navigate("comments/$it")
-                            },
+                            onClick = navController::navigateToComments,
                         )
                     }
 

@@ -60,6 +60,9 @@ FROM story
 LIMIT :limit
 OFFSET :offset;
 
+getOldestStory:
+SELECT min(insertedAt) FROM story;
+
 insertStory:
 INSERT OR REPLACE INTO story VALUES ?;
 

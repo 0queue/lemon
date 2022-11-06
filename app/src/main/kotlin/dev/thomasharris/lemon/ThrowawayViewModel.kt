@@ -14,7 +14,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.components.SingletonComponent
-import dev.thomasharris.lemon.core.data.LobstersMediator
+import dev.thomasharris.lemon.core.data.PageMediator
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
 import dev.thomasharris.lemon.lobstersapi.LobstersService
@@ -40,7 +40,7 @@ class ThrowawayViewModel @Inject constructor(
     private val lobstersService: LobstersService,
     private val lobstersDatabase: LobstersDatabase,
     private val pagingSourceFactory: @JvmSuppressWildcards () -> PagingSource<Int, Story>,
-    private val remoteMediator: LobstersMediator,
+    private val remoteMediator: PageMediator,
 ) : ViewModel() {
 
     val counterState = MutableStateFlow(0)

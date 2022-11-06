@@ -27,6 +27,11 @@ gradlePlugin {
             id = "dev.thomasharris.lemon.hilt"
             implementationClass = "LemonHiltConventionPlugin"
         }
+
+        register("feature") {
+            id = "dev.thomasharris.lemon.feature"
+            implementationClass = "LemonFeatureConventionPlugin"
+        }
     }
 }
 
