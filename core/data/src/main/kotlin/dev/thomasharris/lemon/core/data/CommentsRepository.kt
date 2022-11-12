@@ -1,14 +1,25 @@
 package dev.thomasharris.lemon.core.data
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadType
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.RemoteMediator
 import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.paging3.QueryPagingSource
 import com.github.michaelbull.result.unwrap
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dev.thomasharris.lemon.core.database.Comment
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.lobstersapi.CommentNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.model.LobstersComment
+import dev.thomasharris.lemon.model.LobstersStory
 import dev.thomasharris.lemon.model.LobstersUser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -23,37 +34,50 @@ class CommentsRepository @Inject constructor(
     private val lobstersDatabase: LobstersDatabase,
 ) {
 
-    suspend fun commentsFlow(storyId: String) {
-        val commentsFlow = lobstersDatabase.lobstersQueries
-            .getCommentsWithUserByStoryId(
-                storyId = storyId,
-                mapper = commentMapper,
-            )
-            .asFlow()
-            .map { query ->
-                withContext(Dispatchers.IO) {
-                    query.executeAsList()
-                }
+    fun storyFlow(
+        storyId: String,
+    ): Flow<LobstersStory?> = lobstersDatabase
+        .lobstersQueries
+        .getStoryWithUser(
+            storyId = storyId,
+            mapper = storyMapper,
+        )
+        .asFlow()
+        .map { query ->
+            withContext(Dispatchers.IO) {
+                query.executeAsOneOrNull()
             }
+        }
 
-        // TODO fetch single story as well
+    fun makePagingSource(
+        storyId: String,
+    ): PagingSource<Int, LobstersComment> = QueryPagingSource(
+        countQuery = lobstersDatabase.lobstersQueries.countCommentsWithStoryId(storyId),
+        transacter = lobstersDatabase.lobstersQueries,
+        context = Dispatchers.IO,
+    ) { limit, offset ->
+        lobstersDatabase.lobstersQueries.getCommentsWithUserByStoryId(
+            storyId = storyId,
+            limit = limit,
+            offset = offset,
+            mapper = commentMapper,
+        )
     }
 
-    suspend fun fetchComments(
-        shortId: String,
-        forceRefresh: Boolean = false,
+    suspend fun loadComments(
+        storyId: String,
+        clearComments: Boolean = false,
     ) {
-        if (!forceRefresh && !shouldRefresh(shortId))
-            return
+        println("loading comments for $storyId")
 
-        val (story, comments) = lobstersService.getStory(shortId).unwrap()
+        val (story, comments) = lobstersService.getStory(storyId).unwrap()
 
         withContext(Dispatchers.IO) {
             lobstersDatabase.lobstersQueries.transaction {
-                lobstersDatabase.lobstersQueries.deleteCommentsWithStoryId(shortId)
+                lobstersDatabase.lobstersQueries.deleteCommentsWithStoryId(storyId)
 
                 val previousVersion = lobstersDatabase.lobstersQueries
-                    .getStory(shortId)
+                    .getStory(storyId)
                     .executeAsOneOrNull()
 
                 val dbStory = story.asDbStory(
@@ -63,15 +87,21 @@ class CommentsRepository @Inject constructor(
 
                 lobstersDatabase.lobstersQueries.insertStory(dbStory)
 
+                if (clearComments)
+                    lobstersDatabase.lobstersQueries.deleteCommentsWithStoryId(storyId)
+
                 comments.forEachIndexed { index, comment ->
                     lobstersDatabase.lobstersQueries
-                        .insertComment(comment.asDbComment(shortId, index))
+                        .insertComment(comment.asDbComment(storyId, index))
+
+                    lobstersDatabase.lobstersQueries
+                        .insertUser(comment.commentingUser.asDbUser())
                 }
             }
         }
     }
 
-    private suspend fun shouldRefresh(
+    suspend fun isOutOfDate(
         shortId: String,
     ): Boolean = withContext(Dispatchers.IO) {
         val oldestComment = lobstersDatabase.lobstersQueries
@@ -84,6 +114,46 @@ class CommentsRepository @Inject constructor(
         Clock.System
             .now()
             .minus(oldestComment) > 1.hours
+    }
+}
+
+@OptIn(ExperimentalPagingApi::class)
+class CommentsMediator @AssistedInject constructor(
+    private val commentsRepository: CommentsRepository,
+    @Assisted
+    private val storyId: String,
+) : RemoteMediator<Int, LobstersComment>() {
+
+    override suspend fun initialize(): InitializeAction =
+        if (commentsRepository.isOutOfDate(storyId))
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        else
+            InitializeAction.SKIP_INITIAL_REFRESH
+
+    override suspend fun load(
+        loadType: LoadType,
+        state: PagingState<Int, LobstersComment>,
+    ): MediatorResult = when (loadType) {
+        LoadType.REFRESH -> {
+            commentsRepository.loadComments(
+                storyId = storyId,
+                clearComments = true,
+            )
+            MediatorResult.Success(endOfPaginationReached = false)
+        }
+        LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+        LoadType.APPEND -> {
+            commentsRepository.loadComments(
+                storyId = storyId,
+                clearComments = true,
+            )
+            MediatorResult.Success(endOfPaginationReached = true)
+        }
+    }
+
+    @AssistedFactory
+    interface CommentsMediatorFactory {
+        fun create(storyId: String): CommentsMediator
     }
 }
 
@@ -107,7 +177,7 @@ private fun CommentNetworkEntity.asDbComment(
 
 private val commentMapper = {
         shortId: String,
-        storyId: String,
+        _: String,
         createdAt: Instant,
         updatedAt: Instant,
         isDeleted: Boolean,
@@ -130,8 +200,8 @@ private val commentMapper = {
     val user = LobstersUser(
         username = username,
         createdAt = userCreatedAt,
-        isAdmin = isAdmin,
         about = about,
+        isAdmin = isAdmin,
         isModerator = isModerator,
         karma = karma,
         avatarUrl = avatarShortUrl,
@@ -150,5 +220,52 @@ private val commentMapper = {
         comment = comment,
         indentLevel = indentLevel,
         commentingUser = user,
+    )
+}
+
+private val storyMapper = {
+        shortId: String,
+        createdAt: Instant,
+        title: String,
+        url: String,
+        score: Int,
+        commentCount: Int,
+        description: String,
+        tags: List<String>,
+        username: String,
+        userCreatedAt: Instant,
+        isAdmin: Boolean,
+        about: String,
+        isModerator: Boolean,
+        karma: Int,
+        avatarShortUrl: String,
+        invitedByUser: String?,
+        githubUsername: String?,
+        twitterUsername: String?,
+    ->
+
+    val user = LobstersUser(
+        username = username,
+        createdAt = userCreatedAt,
+        about = about,
+        isAdmin = isAdmin,
+        isModerator = isModerator,
+        karma = karma,
+        avatarUrl = avatarShortUrl,
+        invitedByUser = invitedByUser,
+        githubUsername = githubUsername,
+        twitterUsername = twitterUsername,
+    )
+
+    LobstersStory(
+        shortId = shortId,
+        createdAt = createdAt,
+        title = title,
+        url = url,
+        score = score,
+        commentCount = commentCount,
+        description = description,
+        submitter = user,
+        tags = tags,
     )
 }

@@ -46,16 +46,26 @@ fun FrontPageScreen(
             ) { index, story ->
                 if (story == null)
                     Text("Null...")
-                else
-                    Text(
+                else {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
                                 onClick(story.shortId)
                             }
                             .padding(16.dp),
-                        text = "$index: ${story.title}",
-                    )
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            text = "$index: ${story.title}",
+                        )
+                        Text(
+                            modifier = Modifier.padding(2.dp),
+                            text = "${story.commentCount} comments",
+                        )
+                    }
+                }
             }
         }
     }

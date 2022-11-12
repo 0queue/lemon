@@ -111,26 +111,24 @@ class PageMediator @Inject constructor(
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, LobstersStory>,
-    ): MediatorResult {
-        return when (loadType) {
-            LoadType.REFRESH -> {
-                pageRepository.loadPage(pageIndex = 1, clearStories = true)
-                MediatorResult.Success(endOfPaginationReached = false)
+    ): MediatorResult = when (loadType) {
+        LoadType.REFRESH -> {
+            pageRepository.loadPage(pageIndex = 1, clearStories = true)
+            MediatorResult.Success(endOfPaginationReached = false)
+        }
+        LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+        LoadType.APPEND -> {
+            val numberOfLoadedStories = state.pages.sumOf { page ->
+                page.data.size
             }
-            LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
-            LoadType.APPEND -> {
-                val numberOfLoadedStories = state.pages.sumOf { page ->
-                    page.data.size
-                }
 
-                // TODO extract a constant which is like lobster_page_size
-                val numberOfFullPages = numberOfLoadedStories.div(25)
-                val pageIndex = numberOfFullPages.plus(1)
+            // TODO extract a constant which is like lobster_page_size
+            val numberOfFullPages = numberOfLoadedStories.div(25)
+            val pageIndex = numberOfFullPages.plus(1)
 
-                pageRepository.loadPage(pageIndex)
-                // TODO would be cool to add a page limit for conscious media consumption
-                MediatorResult.Success(endOfPaginationReached = false)
-            }
+            pageRepository.loadPage(pageIndex)
+            // TODO would be cool to add a page limit for conscious media consumption
+            MediatorResult.Success(endOfPaginationReached = false)
         }
     }
 }
