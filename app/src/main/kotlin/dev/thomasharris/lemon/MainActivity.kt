@@ -16,15 +16,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.thomasharris.lemon.feature.comments.installCommentsRoute
 import dev.thomasharris.lemon.feature.comments.navigateToComments
 import dev.thomasharris.lemon.feature.frontpage.installFrontPageRoute
-import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.ui.theme.LemonForLobstersTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val lobstersService = LobstersService()
 
         setContent {
             LemonForLobstersTheme {
@@ -44,67 +41,9 @@ class MainActivity : ComponentActivity() {
                         )
 
                         installCommentsRoute(
-                            onClick = navController::navigateToComments,
+                            onBackClick = navController::popBackStack,
                         )
                     }
-
-//                    Column(
-//                        horizontalAlignment = Alignment.CenterHorizontally,
-//                        verticalArrangement = Arrangement.Top,
-//                    ) {
-//                        val throwawayViewModel = viewModel<ThrowawayViewModel>()
-//
-//                        val counterState by throwawayViewModel.counterState.collectAsState()
-//
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(8.dp),
-//                            verticalAlignment = Alignment.CenterVertically,
-//                            horizontalArrangement = Arrangement.SpaceEvenly,
-//                        ) {
-//                            Text("Counter: $counterState")
-//
-//                            Button(onClick = throwawayViewModel::increment) {
-//                                Text("Increment")
-//                            }
-//
-// //                            Button(
-// //                                onClick = throwawayViewModel::insertStories,
-// //                            ) {
-// //                                Text("Load")
-// //                            }
-//                        }
-//
-//                        val listState = rememberLazyListState()
-//
-//                        val stories = throwawayViewModel.pages.collectAsLazyPagingItems()
-//
-//                        LazyColumn(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            state = listState,
-//                        ) {
-//                            items(
-//                                items = stories,
-//                                key = Story::shortId,
-//                            ) { story ->
-//
-//                                if (story == null) {
-//                                    Text(
-//                                        modifier = Modifier.padding(8.dp),
-//                                        text = "why is this null",
-//                                    )
-//                                } else {
-//                                    Column(
-//                                        modifier = Modifier.padding(8.dp),
-//                                    ) {
-//                                        Text(text = story.title)
-//                                        Text(text = story.createdAt.toString())
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
                 }
             }
         }

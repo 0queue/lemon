@@ -13,7 +13,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     implementation(libs.app.cash.sqldelight.android.driver)
-    implementation(libs.app.cash.sqldelight.coroutines)
+    api(libs.app.cash.sqldelight.coroutines)
 }
 
 sqldelight {

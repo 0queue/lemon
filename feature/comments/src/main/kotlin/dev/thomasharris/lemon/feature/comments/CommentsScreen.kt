@@ -11,29 +11,27 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun CommentsRoute(
     viewModel: CommentsViewModel = hiltViewModel(),
-    onClick: (String) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     CommentsScreen(
         storyId = viewModel.id,
-        onClick = onClick,
+        onBackClick = onBackClick,
     )
 }
 
 @Composable
 fun CommentsScreen(
     storyId: String,
-    onClick: (String) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text("story: $storyId")
         Button(
-            onClick = {
-                onClick(storyId + "Nested")
-            },
+            onClick = onBackClick,
         ) {
-            Text("go deeper")
+            Text("go back")
         }
     }
 }

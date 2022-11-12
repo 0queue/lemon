@@ -22,7 +22,7 @@ fun NavController.navigateToComments(storyId: String) {
 }
 
 fun NavGraphBuilder.installCommentsRoute(
-    onClick: (String) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     composable(
         route = "s/{$storyIdArg}",
@@ -31,7 +31,7 @@ fun NavGraphBuilder.installCommentsRoute(
         ),
     ) {
         CommentsRoute(
-            onClick = onClick,
+            onBackClick = onBackClick,
         )
     }
 }

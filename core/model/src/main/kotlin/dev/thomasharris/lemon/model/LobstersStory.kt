@@ -4,7 +4,6 @@ import kotlinx.datetime.Instant
 
 data class LobstersStory(
     val shortId: ShortId,
-    val shortIdUrl: String,
     val createdAt: Instant,
     val title: String,
     val url: String,
@@ -13,6 +12,4 @@ data class LobstersStory(
     val description: String,
     val submitter: LobstersUser,
     val tags: List<String>,
-    // if null, this is the dehydrated model from a page
-    val comments: List<LobstersComment>?,
 )

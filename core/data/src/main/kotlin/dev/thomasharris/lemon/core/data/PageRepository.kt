@@ -9,8 +9,12 @@ import app.cash.sqldelight.paging3.QueryPagingSource
 import com.github.michaelbull.result.unwrap
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
+import dev.thomasharris.lemon.core.database.User
 import dev.thomasharris.lemon.lobstersapi.LobstersService
+import dev.thomasharris.lemon.lobstersapi.StoryNetworkEntity
+import dev.thomasharris.lemon.lobstersapi.UserNetworkEntity
 import dev.thomasharris.lemon.model.LobstersStory
+import dev.thomasharris.lemon.model.LobstersUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -24,39 +28,39 @@ class PageRepository @Inject constructor(
     private val lobstersService: LobstersService,
     private val lobstersDatabase: LobstersDatabase,
 ) {
-    fun makePagingSource(): PagingSource<Int, Story> {
-        return QueryPagingSource(
-            countQuery = lobstersDatabase.lobstersQueries.countStories(),
-            transacter = lobstersDatabase.lobstersQueries,
-            context = Dispatchers.IO,
-        ) { limit, offset ->
-            // todo custom mapper here?
-            lobstersDatabase.lobstersQueries.getStories(limit, offset)
-        }
+
+    fun makePagingSource(): PagingSource<Int, LobstersStory> = QueryPagingSource(
+        countQuery = lobstersDatabase.lobstersQueries.countStoriesOnFrontPage(),
+        transacter = lobstersDatabase.lobstersQueries,
+        context = Dispatchers.IO,
+    ) { limit, offset ->
+        lobstersDatabase.lobstersQueries.getStoriesOnFrontPageWithUsers(
+            limit = limit,
+            offset = offset,
+            mapper = mapper,
+        )
     }
 
     // TODO errors from service
-    suspend fun refresh() {
-        val firstPage = lobstersService.getPage(1).unwrap()
-
-        lobstersDatabase.transaction {
-            lobstersDatabase.lobstersQueries.deleteStories()
-            firstPage.forEachIndexed { index, story ->
-                lobstersDatabase.lobstersQueries.insertStory(
-                    story.asDbStory(1, index),
-                )
-            }
-        }
-    }
-
-    // TODO errors from service
-    suspend fun fetchPage(pageIndex: Int) {
+    suspend fun loadPage(
+        pageIndex: Int,
+        clearStories: Boolean = false,
+    ) {
         val page = lobstersService.getPage(pageIndex).unwrap()
-        lobstersDatabase.transaction {
-            page.forEachIndexed { index, story ->
-                lobstersDatabase.lobstersQueries.insertStory(
-                    story.asDbStory(pageIndex, index),
-                )
+
+        withContext(Dispatchers.IO) {
+            lobstersDatabase.lobstersQueries.transaction {
+                if (clearStories)
+                    lobstersDatabase.lobstersQueries.deleteStories()
+
+                page.forEachIndexed { index, story ->
+                    lobstersDatabase.lobstersQueries.insertStory(
+                        story.asDbStory(pageIndex, index),
+                    )
+                    lobstersDatabase.lobstersQueries.insertUser(
+                        user = story.submitter.asDbUser(),
+                    )
+                }
             }
         }
     }
@@ -80,7 +84,7 @@ class PageRepository @Inject constructor(
 @Singleton
 class PageMediator @Inject constructor(
     private val pageRepository: PageRepository,
-) : RemoteMediator<Int, Story>() {
+) : RemoteMediator<Int, LobstersStory>() {
 
     override suspend fun initialize(): InitializeAction =
         if (pageRepository.isOutOfDate())
@@ -88,27 +92,52 @@ class PageMediator @Inject constructor(
         else
             InitializeAction.SKIP_INITIAL_REFRESH
 
+    /**
+     * Be careful when changing some loading parameters,
+     * while working on this I ended up with a database with
+     * pages 1 and 3 (no 2), and it ended up in a loading loop
+     * and lobste.rs returned a 500 error.  It seems the
+     * [app.cash.sqldelight.paging3.OffsetQueryPagingSource]
+     * in that situation, when initially loading, found the
+     * two pages and thought no more data was available.  This
+     * triggered the [RemoteMediator] to load more pages,
+     * which found 50 items and thus wanted to load page 3,
+     * which it did, which overwrote the page because it exists,
+     * which invalidated the PagingSource, which triggered the initial
+     * load again...
+     *
+     * TODO never let this happen
+     */
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Story>,
-    ): MediatorResult = when (loadType) {
-        LoadType.REFRESH -> {
-            pageRepository.refresh()
-            MediatorResult.Success(endOfPaginationReached = false)
-        }
-        LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
-        LoadType.APPEND -> {
-            val pageIndex = state.lastItemOrNull()?.pageIndex?.plus(1) ?: 1
-            pageRepository.fetchPage(pageIndex)
-            // TODO would be cool to add a page limit for conscious media consumption
-            MediatorResult.Success(endOfPaginationReached = false)
+        state: PagingState<Int, LobstersStory>,
+    ): MediatorResult {
+        return when (loadType) {
+            LoadType.REFRESH -> {
+                pageRepository.loadPage(pageIndex = 1, clearStories = true)
+                MediatorResult.Success(endOfPaginationReached = false)
+            }
+            LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+            LoadType.APPEND -> {
+                val numberOfLoadedStories = state.pages.sumOf { page ->
+                    page.data.size
+                }
+
+                // TODO extract a constant which is like lobster_page_size
+                val numberOfFullPages = numberOfLoadedStories.div(25)
+                val pageIndex = numberOfFullPages.plus(1)
+
+                pageRepository.loadPage(pageIndex)
+                // TODO would be cool to add a page limit for conscious media consumption
+                MediatorResult.Success(endOfPaginationReached = false)
+            }
         }
     }
 }
 
-fun LobstersStory.asDbStory(
-    pageIndex: Int,
-    pageSubIndex: Int,
+fun StoryNetworkEntity.asDbStory(
+    pageIndex: Int?,
+    pageSubIndex: Int?,
 ) = Story(
     shortId = shortId,
     title = title,
@@ -123,3 +152,65 @@ fun LobstersStory.asDbStory(
     pageSubIndex = pageSubIndex,
     insertedAt = Clock.System.now(),
 )
+
+fun UserNetworkEntity.asDbUser(): User = User(
+    username = username,
+    createdAt = createdAt,
+    isAdmin = isAdmin,
+    about = about,
+    isModerator = isModerator,
+    karma = karma,
+    avatarShortUrl = avatarUrl,
+    invitedByUser = invitedByUser,
+    insertedAt = Clock.System.now(),
+    githubUsername = githubUsername,
+    twitterUsername = twitterUsername,
+)
+
+// not sure why this can't be a function
+internal val mapper = {
+        shortId: String,
+        createdAt: Instant,
+        title: String,
+        url: String,
+        score: Int,
+        commentCount: Int,
+        description: String,
+        tags: List<String>,
+        username: String,
+        userCreatedAt: Instant,
+        isAdmin: Boolean,
+        about: String,
+        isModerator: Boolean,
+        karma: Int,
+        avatarShortUrl: String,
+        invitedByUser: String?,
+        githubUsername: String?,
+        twitterUsername: String?,
+    ->
+
+    val user = LobstersUser(
+        username = username,
+        createdAt = userCreatedAt,
+        about = about,
+        isAdmin = isAdmin,
+        isModerator = isModerator,
+        karma = karma,
+        avatarUrl = avatarShortUrl,
+        invitedByUser = invitedByUser,
+        githubUsername = githubUsername,
+        twitterUsername = twitterUsername,
+    )
+
+    LobstersStory(
+        shortId = shortId,
+        createdAt = createdAt,
+        title = title,
+        url = url,
+        score = score,
+        commentCount = commentCount,
+        description = description,
+        submitter = user,
+        tags = tags,
+    )
+}

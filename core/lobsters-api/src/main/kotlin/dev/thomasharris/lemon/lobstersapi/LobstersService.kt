@@ -2,8 +2,6 @@ package dev.thomasharris.lemon.lobstersapi
 
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.runSuspendCatching
-import dev.thomasharris.lemon.model.LobstersStory
-import dev.thomasharris.lemon.model.LobstersUser
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -18,21 +16,25 @@ class LobstersService(
 ) {
     suspend fun getPage(
         index: Int,
-    ): Result<List<LobstersStory>, Throwable> = runSuspendCatching {
-        client.get("page/$index.json")
-            .body<List<StoryNetworkEntity>>()
-            .map(StoryNetworkEntity::asModel)
+    ): Result<List<StoryNetworkEntity>, Throwable> = runSuspendCatching {
+        client.get("page/$index.json").body()
     }
 
     suspend fun getStory(
         shortId: ShortId,
-    ): Result<LobstersStory, Throwable> = runSuspendCatching {
-        client.get("s/$shortId.json").body()
-    }
+    ): Result<Pair<StoryNetworkEntity, List<CommentNetworkEntity>>, Throwable> =
+        runSuspendCatching {
+            val story = client.get("s/$shortId.json")
+                .body<StoryNetworkEntity>()
+
+            val comments = story.comments!! // TODO real errors
+
+            story to comments
+        }
 
     suspend fun getUser(
         username: String,
-    ): Result<LobstersUser, Throwable> = runSuspendCatching {
+    ): Result<UserNetworkEntity, Throwable> = runSuspendCatching {
         client.get("u/$username.json").body()
     }
 }

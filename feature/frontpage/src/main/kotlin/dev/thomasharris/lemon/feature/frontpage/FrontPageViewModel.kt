@@ -17,6 +17,7 @@ class FrontPageViewModel @Inject constructor(
     private val pageRepository: PageRepository,
     pageMediator: PageMediator,
 ) : ViewModel() {
+
     val pages = Pager(
         config = PagingConfig(
             pageSize = 25,

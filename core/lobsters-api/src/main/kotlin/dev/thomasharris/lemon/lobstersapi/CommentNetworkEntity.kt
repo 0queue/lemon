@@ -1,12 +1,11 @@
 package dev.thomasharris.lemon.lobstersapi
 
-import dev.thomasharris.lemon.model.LobstersComment
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class CommentNetworkEntity(
+data class CommentNetworkEntity(
     @SerialName("short_id") val shortId: ShortId,
     @SerialName("short_id_url") val shortIdUrl: String,
     @SerialName("created_at") val createdAt: Instant,
@@ -18,18 +17,4 @@ internal data class CommentNetworkEntity(
     val url: String,
     @SerialName("indent_level") val indentLevel: Int, // starts at 1
     @SerialName("commenting_user") val commentingUser: UserNetworkEntity,
-)
-
-internal fun CommentNetworkEntity.asModel() = LobstersComment(
-    shortId = shortId,
-    shortIdUrl = shortIdUrl,
-    createdAt = createdAt,
-    updatedAt = updatedAt,
-    isDeleted = isDeleted,
-    isModerated = isModerated,
-    score = score,
-    comment = comment,
-    url = url,
-    indentLevel = indentLevel,
-    commentingUser = commentingUser.asModel(),
 )
