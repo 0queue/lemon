@@ -1,4 +1,4 @@
-package dev.thomasharris.lemon.model
+package dev.thomasharris.lemon.core.model
 
 import kotlinx.datetime.Instant
 

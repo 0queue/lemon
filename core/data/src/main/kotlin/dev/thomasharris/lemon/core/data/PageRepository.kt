@@ -10,11 +10,11 @@ import com.github.michaelbull.result.unwrap
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
 import dev.thomasharris.lemon.core.database.User
+import dev.thomasharris.lemon.core.model.LobstersStory
+import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.lobstersapi.StoryNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.UserNetworkEntity
-import dev.thomasharris.lemon.model.LobstersStory
-import dev.thomasharris.lemon.model.LobstersUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock

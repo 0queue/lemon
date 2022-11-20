@@ -1,4 +1,4 @@
-package dev.thomasharris.lemon.ui.theme
+package dev.thomasharris.lemon.core.theme
 
 import android.app.Activity
 import android.os.Build

@@ -16,8 +16,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
-import dev.thomasharris.lemon.model.LobstersComment
-import dev.thomasharris.lemon.model.LobstersStory
+import dev.thomasharris.lemon.core.model.LobstersComment
+import dev.thomasharris.lemon.core.model.LobstersStory
 
 @Composable
 fun CommentsRoute(

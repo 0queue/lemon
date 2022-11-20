@@ -13,10 +13,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.feature.comments.installCommentsRoute
 import dev.thomasharris.lemon.feature.comments.navigateToComments
 import dev.thomasharris.lemon.feature.frontpage.installFrontPageRoute
-import dev.thomasharris.lemon.ui.theme.LemonForLobstersTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

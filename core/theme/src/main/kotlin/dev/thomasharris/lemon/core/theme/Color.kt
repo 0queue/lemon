@@ -1,4 +1,4 @@
-package dev.thomasharris.lemon.ui.theme
+package dev.thomasharris.lemon.core.theme
 
 import androidx.compose.ui.graphics.Color
 

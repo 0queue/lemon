@@ -13,11 +13,11 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dev.thomasharris.lemon.core.database.Comment
 import dev.thomasharris.lemon.core.database.LobstersDatabase
+import dev.thomasharris.lemon.core.model.LobstersComment
+import dev.thomasharris.lemon.core.model.LobstersStory
+import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.lobstersapi.CommentNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.LobstersService
-import dev.thomasharris.lemon.model.LobstersComment
-import dev.thomasharris.lemon.model.LobstersStory
-import dev.thomasharris.lemon.model.LobstersUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
