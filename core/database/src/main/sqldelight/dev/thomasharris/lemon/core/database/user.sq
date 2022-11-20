@@ -1,0 +1,20 @@
+import kotlin.Boolean;
+import kotlin.Int;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE user (
+    username TEXT NOT NULL UNIQUE PRIMARY KEY,
+    createdAt INTEGER AS Instant NOT NULL,
+    isAdmin INTEGER AS Boolean NOT NULL,
+    about TEXT NOT NULL,
+    isModerator INTEGER AS Boolean NOT NULL,
+    karma INTEGER AS Int NOT NULL,
+    avatarShortUrl TEXT NOT NULL,
+    invitedByUser TEXT,
+    insertedAt INTEGER AS Instant NOT NULL,
+    githubUsername TEXT,
+    twitterUsername TEXT
+);
+
+insertUser:
+INSERT OR REPLACE INTO user VALUES ?;

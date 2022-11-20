@@ -1,0 +1,73 @@
+import kotlin.Boolean;
+import kotlin.Int;
+import kotlin.String;
+import kotlin.collections.List;
+import kotlinx.datetime.Instant;
+
+-- add a field pointing to sibling to make collapsing easier?
+CREATE TABLE comment (
+    shortId TEXT NOT NULL UNIQUE PRIMARY KEY,
+    storyId TEXT NOT NULL,
+    commentIndex INTEGER AS Int NOT NULL,
+    createdAt INTEGER AS Instant NOT NULL,
+    updatedAt INTEGER AS Instant NOT NULL,
+    isDeleted INTEGER AS Boolean NOT NULL,
+    isModerated INTEGER AS Boolean NOT NULL,
+    score INTEGER AS Int NOT NULL,
+    comment TEXT NOT NULL,
+    indentLevel INTEGER AS Int NOT NULL,
+    username TEXT NOT NULL,
+    insertedAt INTEGER AS Instant NOT NULL
+--     status INTEGER AS CommentStatus NOT NULL
+);
+
+
+---
+
+insertComment:
+INSERT OR REPLACE INTO comment VALUES ?;
+
+getCommentsWithUserByStoryId:
+SELECT
+    c.shortId,
+    c.storyId,
+    c.createdAt,
+    c.updatedAt,
+    c.isDeleted,
+    c.isModerated,
+    c.score,
+    c.comment,
+    c.indentLevel,
+    u.username,
+    u.createdAt userCreatedAt,
+    u.isAdmin,
+    u.about,
+    u.isModerator,
+    u.karma,
+    u.avatarShortUrl,
+    u.invitedByUser,
+    u.githubUsername,
+    u.twitterUsername
+FROM comment c
+JOIN user u
+ON c.username = u.username
+WHERE storyId = :storyId
+ORDER BY commentIndex ASC
+LIMIT :limit
+OFFSET :offset;
+
+getOldestComment:
+SELECT
+    min(insertedAt)
+FROM comment
+WHERE storyId = :storyId;
+
+deleteCommentsWithStoryId:
+DELETE FROM comment
+WHERE storyId = :storyId;
+
+countCommentsWithStoryId:
+SELECT
+    count(*)
+FROM comment
+WHERE storyId = :storyId;

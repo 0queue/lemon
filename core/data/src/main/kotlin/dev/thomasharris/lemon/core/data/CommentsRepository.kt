@@ -37,7 +37,7 @@ class CommentsRepository @Inject constructor(
     fun storyFlow(
         storyId: String,
     ): Flow<LobstersStory?> = lobstersDatabase
-        .lobstersQueries
+        .storyQueries
         .getStoryWithUser(
             storyId = storyId,
             mapper = storyMapper,
@@ -52,11 +52,11 @@ class CommentsRepository @Inject constructor(
     fun makePagingSource(
         storyId: String,
     ): PagingSource<Int, LobstersComment> = QueryPagingSource(
-        countQuery = lobstersDatabase.lobstersQueries.countCommentsWithStoryId(storyId),
-        transacter = lobstersDatabase.lobstersQueries,
+        countQuery = lobstersDatabase.commentQueries.countCommentsWithStoryId(storyId),
+        transacter = lobstersDatabase.commentQueries,
         context = Dispatchers.IO,
     ) { limit, offset ->
-        lobstersDatabase.lobstersQueries.getCommentsWithUserByStoryId(
+        lobstersDatabase.commentQueries.getCommentsWithUserByStoryId(
             storyId = storyId,
             limit = limit,
             offset = offset,
@@ -73,10 +73,11 @@ class CommentsRepository @Inject constructor(
         val (story, comments) = lobstersService.getStory(storyId).unwrap()
 
         withContext(Dispatchers.IO) {
-            lobstersDatabase.lobstersQueries.transaction {
-                lobstersDatabase.lobstersQueries.deleteCommentsWithStoryId(storyId)
+            lobstersDatabase.transaction {
+                lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
 
-                val previousVersion = lobstersDatabase.lobstersQueries
+                val previousVersion = lobstersDatabase
+                    .storyQueries
                     .getStory(storyId)
                     .executeAsOneOrNull()
 
@@ -85,16 +86,16 @@ class CommentsRepository @Inject constructor(
                     pageSubIndex = previousVersion?.pageSubIndex,
                 )
 
-                lobstersDatabase.lobstersQueries.insertStory(dbStory)
+                lobstersDatabase.storyQueries.insertStory(dbStory)
 
                 if (clearComments)
-                    lobstersDatabase.lobstersQueries.deleteCommentsWithStoryId(storyId)
+                    lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
 
                 comments.forEachIndexed { index, comment ->
-                    lobstersDatabase.lobstersQueries
+                    lobstersDatabase.commentQueries
                         .insertComment(comment.asDbComment(storyId, index))
 
-                    lobstersDatabase.lobstersQueries
+                    lobstersDatabase.userQueries
                         .insertUser(comment.commentingUser.asDbUser())
                 }
             }
@@ -104,7 +105,7 @@ class CommentsRepository @Inject constructor(
     suspend fun isOutOfDate(
         shortId: String,
     ): Boolean = withContext(Dispatchers.IO) {
-        val oldestComment = lobstersDatabase.lobstersQueries
+        val oldestComment = lobstersDatabase.commentQueries
             .getOldestComment(shortId)
             .executeAsOneOrNull()
             ?.min

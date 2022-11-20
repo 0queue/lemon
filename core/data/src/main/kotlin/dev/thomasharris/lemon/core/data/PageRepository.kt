@@ -30,11 +30,11 @@ class PageRepository @Inject constructor(
 ) {
 
     fun makePagingSource(): PagingSource<Int, LobstersStory> = QueryPagingSource(
-        countQuery = lobstersDatabase.lobstersQueries.countStoriesOnFrontPage(),
-        transacter = lobstersDatabase.lobstersQueries,
+        countQuery = lobstersDatabase.storyQueries.countStoriesOnFrontPage(),
+        transacter = lobstersDatabase.storyQueries,
         context = Dispatchers.IO,
     ) { limit, offset ->
-        lobstersDatabase.lobstersQueries.getStoriesOnFrontPageWithUsers(
+        lobstersDatabase.storyQueries.getStoriesOnFrontPageWithUsers(
             limit = limit,
             offset = offset,
             mapper = mapper,
@@ -49,15 +49,15 @@ class PageRepository @Inject constructor(
         val page = lobstersService.getPage(pageIndex).unwrap()
 
         withContext(Dispatchers.IO) {
-            lobstersDatabase.lobstersQueries.transaction {
+            lobstersDatabase.transaction {
                 if (clearStories)
-                    lobstersDatabase.lobstersQueries.deleteStories()
+                    lobstersDatabase.storyQueries.deleteStories()
 
                 page.forEachIndexed { index, story ->
-                    lobstersDatabase.lobstersQueries.insertStory(
+                    lobstersDatabase.storyQueries.insertStory(
                         story.asDbStory(pageIndex, index),
                     )
-                    lobstersDatabase.lobstersQueries.insertUser(
+                    lobstersDatabase.userQueries.insertUser(
                         user = story.submitter.asDbUser(),
                     )
                 }
@@ -67,7 +67,7 @@ class PageRepository @Inject constructor(
 
     suspend fun isOutOfDate(): Boolean {
         val oldestStory = withContext(Dispatchers.IO) {
-            lobstersDatabase.lobstersQueries.getOldestStory().executeAsOneOrNull()
+            lobstersDatabase.storyQueries.getOldestStory().executeAsOneOrNull()
         }?.min?.let(Instant::fromEpochMilliseconds)
 
         return if (oldestStory != null) {
@@ -106,7 +106,7 @@ class PageMediator @Inject constructor(
      * which invalidated the PagingSource, which triggered the initial
      * load again...
      *
-     * TODO never let this happen
+     * TODO never let this happen.  Maybe a check in initialize?
      */
     override suspend fun load(
         loadType: LoadType,

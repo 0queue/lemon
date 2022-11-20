@@ -1,0 +1,103 @@
+import kotlin.Boolean;
+import kotlin.Int;
+import kotlin.String;
+import kotlin.collections.List;
+import kotlinx.datetime.Instant;
+
+CREATE TABLE story (
+    shortId TEXT NOT NULL UNIQUE PRIMARY KEY,
+    title TEXT NOT NULL,
+    createdAt INTEGER AS Instant NOT NULL,
+    url TEXT NOT NULL,
+    score INTEGER AS Int NOT NULL,
+    commentCount INTEGER AS Int NOT NULL,
+    description TEXT NOT NULL,
+    username TEXT NOT NULL,
+    tags TEXT AS List<String> NOT NULL,
+    pageIndex INTEGER AS Int,
+    pageSubIndex INTEGER AS Int,
+    insertedAt INTEGER AS Instant NOT NULL
+);
+
+---
+
+countStoriesOnFrontPage:
+SELECT
+    count(*)
+FROM story
+WHERE pageIndex IS NOT NULL;
+
+getStoriesOnFrontPage:
+SELECT *
+FROM story
+WHERE pageIndex IS NOT NULL
+LIMIT :limit
+OFFSET :offset;
+
+getStoriesOnFrontPageWithUsers:
+SELECT
+    s.shortId,
+    s.createdAt,
+    s.title,
+    s.url,
+    s.score,
+    s.commentCount,
+    s.description,
+    s.tags,
+    u.username,
+    u.createdAt userCreatedAt,
+    u.isAdmin,
+    u.about,
+    u.isModerator,
+    u.karma,
+    u.avatarShortUrl,
+    u.invitedByUser,
+    u.githubUsername,
+    u.twitterUsername
+FROM story s
+JOIN user u
+ON s.username = u.username
+WHERE pageIndex IS NOT NULL
+ORDER BY s.pageIndex, s.pageSubIndex
+LIMIT :limit
+OFFSET :offset;
+
+getStoryWithUser:
+SELECT
+    s.shortId,
+    s.createdAt,
+    s.title,
+    s.url,
+    s.score,
+    s.commentCount,
+    s.description,
+    s.tags,
+    u.username,
+    u.createdAt userCreatedAt,
+    u.isAdmin,
+    u.about,
+    u.isModerator,
+    u.karma,
+    u.avatarShortUrl,
+    u.invitedByUser,
+    u.githubUsername,
+    u.twitterUsername
+FROM story s
+JOIN user u
+ON s.username = u.username
+WHERE s.shortId = :storyId;
+
+getOldestStory:
+SELECT min(insertedAt) FROM story;
+
+getStory:
+SELECT
+    *
+FROM story
+WHERE shortId = :shortId;
+
+insertStory:
+INSERT OR REPLACE INTO story VALUES ?;
+
+deleteStories:
+DELETE FROM story;
