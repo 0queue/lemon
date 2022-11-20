@@ -20,6 +20,7 @@ class FrontPageViewModel @Inject constructor(
 
     val pages = Pager(
         config = PagingConfig(
+            enablePlaceholders = false,
             pageSize = 25,
             prefetchDistance = 50,
         ),

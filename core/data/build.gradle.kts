@@ -1,4 +1,3 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("dev.thomasharris.lemon.library")
     id("dev.thomasharris.lemon.hilt")
