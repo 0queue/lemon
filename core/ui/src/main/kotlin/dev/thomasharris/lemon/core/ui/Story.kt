@@ -1,5 +1,6 @@
 package dev.thomasharris.lemon.core.ui
 
+import android.content.res.Resources
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -67,13 +69,13 @@ fun Story(
             )
             Text(
                 modifier = Modifier.padding(2.dp),
-                text = story.details(),
+                text = story.details(LocalContext.current.resources),
             )
         }
     }
 }
 
-fun LobstersStory.details(): AnnotatedString {
+fun LobstersStory.details(resources: Resources): AnnotatedString {
     return buildAnnotatedString {
         append("%+d".format(score))
         append(" | ")
@@ -86,8 +88,8 @@ fun LobstersStory.details(): AnnotatedString {
         else
             append(submitter.username)
 
-        append(" X ago")
-        append(" $commentCount comments") // TODO quantity string
+        append(" ${createdAt.postedAgo().format(resources)} ")
+        append(resources.getQuantityString(R.plurals.numberOfComments, commentCount, commentCount))
     }
 }
 
