@@ -13,4 +13,6 @@ data class LobstersUser(
     val invitedByUser: String?,
     val githubUsername: String?,
     val twitterUsername: String?,
-)
+) {
+    val fullAvatarUrl = "https://lobste.rs/$avatarUrl"
+}

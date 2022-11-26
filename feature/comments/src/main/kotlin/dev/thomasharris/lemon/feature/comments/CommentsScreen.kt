@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,6 +17,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
+import dev.thomasharris.lemon.core.ui.Story
 
 @Composable
 fun CommentsRoute(
@@ -43,17 +43,10 @@ fun CommentsScreen(
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Text("story ${story?.shortId}: ${story?.title ?: "LOADING"}")
-        Text(
-            modifier = Modifier.padding(4.dp),
-            text = "# of comments ${story?.commentCount}",
+        if (story != null) Story(
+            story = story,
+            onClick = null,
         )
-        Button(
-            modifier = Modifier.padding(4.dp),
-            onClick = onBackClick,
-        ) {
-            Text("go back")
-        }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

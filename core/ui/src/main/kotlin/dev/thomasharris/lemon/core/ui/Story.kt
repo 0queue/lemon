@@ -13,6 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -21,21 +26,25 @@ import coil.compose.AsyncImage
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 @Composable
 fun Story(
     story: LobstersStory,
-    onClick: (String) -> Unit,
+    onClick: ((String) -> Unit)?,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable {
-                onClick(story.shortId)
-            }
+            .clickable(
+                enabled = onClick != null,
+                onClick = {
+                    onClick?.invoke(story.shortId)
+                },
+            )
             .padding(8.dp),
     ) {
         Text(
@@ -53,16 +62,44 @@ fun Story(
                     .padding(end = 4.dp)
                     .size(16.dp)
                     .clip(CircleShape),
-                model = "https://lobste.rs/${story.submitter.avatarUrl}",
+                model = story.submitter.fullAvatarUrl,
                 contentDescription = "",
             )
             Text(
                 modifier = Modifier.padding(2.dp),
-                text = "${story.commentCount} comments",
+                text = story.details(),
             )
         }
     }
 }
+
+fun LobstersStory.details(): AnnotatedString {
+    return buildAnnotatedString {
+        append("%+d".format(score))
+        append(" | ")
+        append("by ")
+
+        if (submitter.isNewUser())
+            withStyle(style = SpanStyle(Color.Green)) {
+                append(submitter.username)
+            }
+        else
+            append(submitter.username)
+
+        append(" X ago")
+        append(" $commentCount comments") // TODO quantity string
+    }
+}
+
+/**
+ * From user.rb#NEW_USER_DAYS
+ */
+fun LobstersUser.isNewUser(
+    asOf: Instant = Clock.System.now(),
+) = createdAt
+    .minus(asOf)
+    .absoluteValue
+    .inWholeDays <= 70
 
 @Preview(showBackground = true)
 @Composable
