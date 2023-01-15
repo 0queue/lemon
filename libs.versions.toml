@@ -25,6 +25,7 @@ app-cash-sqldelight-coroutines = "app.cash.sqldelight:coroutines-extensions-jvm:
 app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.0.0-alpha04"
 
 androidx-activity = "androidx.activity:activity-compose:1.6.0"
+androidx-appcompat = "androidx.appcompat:appcompat:1.6.0"
 androidx-compose-material3 = "androidx.compose.material3:material3:1.0.0-beta03"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }

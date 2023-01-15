@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
+import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
@@ -94,7 +95,7 @@ fun CommentsScreen(
                         if (item == null)
                             Text("ITEM LOADING I GUESS")
                         else {
-                            Text(
+                            HtmlText(
                                 modifier = Modifier.padding(
                                     start = item.indentLevel.times(16).dp,
                                     top = 4.dp,
@@ -108,6 +109,4 @@ fun CommentsScreen(
             }
         },
     )
-
-
 }
