@@ -5,7 +5,6 @@ import android.graphics.Paint
 import android.text.Layout
 import android.text.style.LeadingMarginSpan
 import androidx.annotation.ColorInt
-import dev.thomasharris.lemon.core.betterhtml.fromclaw.LEADING_MARGIN
 
 /*
 * Copyright (C) 2006 The Android Open Source Project
@@ -62,7 +61,7 @@ class MyQuoteSpan(
     private val stripeWidth: Int,
     private val indentation: Int,
     @ColorInt
-    private val color: Int? = null
+    private val color: Int? = null,
 ) : LeadingMarginSpan {
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -81,7 +80,7 @@ class MyQuoteSpan(
         start: Int,
         end: Int,
         first: Boolean,
-        layout: Layout
+        layout: Layout,
     ) {
         val style = p.style
         val color = p.color
@@ -100,7 +99,7 @@ class MyQuoteSpan(
             top.toFloat(),
             ((xPosition + stripeWidth).toFloat()),
             bottom.toFloat(),
-            p
+            p,
         )
         p.style = style
         p.color = color

@@ -5,10 +5,9 @@ import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LeadingMarginSpan
-import dev.thomasharris.lemon.core.betterhtml.fromclaw.LEADING_MARGIN
 
 class MyBulletSpan(
-    private val indentation: Int
+    private val indentation: Int,
 ) : LeadingMarginSpan {
 
     private val bulletRadius = 8
@@ -29,7 +28,7 @@ class MyBulletSpan(
         start: Int,
         end: Int,
         first: Boolean,
-        layout: Layout?
+        layout: Layout?,
     ) {
         if ((text as Spanned).getSpanStart(this) == start) {
             val style = paint.style

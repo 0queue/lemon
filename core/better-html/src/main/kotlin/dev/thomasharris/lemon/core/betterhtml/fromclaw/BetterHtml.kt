@@ -51,8 +51,8 @@ private fun Element.render(dipToPx: (Float) -> Float, indentation: Int = 0): Cha
 
             text().span(
                 PressableSpan(
-                    url
-                )
+                    url,
+                ),
             )
         }
         "blockquote" -> {
@@ -60,8 +60,8 @@ private fun Element.render(dipToPx: (Float) -> Float, indentation: Int = 0): Cha
                 span(
                     MyQuoteSpan(
                         stripeWidth = dipToPx(2f).toInt(),
-                        indentation = indentation
-                    )
+                        indentation = indentation,
+                    ),
                 )
                 span(StyleSpan(Typeface.ITALIC))
             }.paragraph()
@@ -72,8 +72,8 @@ private fun Element.render(dipToPx: (Float) -> Float, indentation: Int = 0): Cha
                     MyQuoteSpan(
                         stripeWidth = dipToPx(2f).toInt(),
                         indentation = indentation,
-                        color = Color.TRANSPARENT
-                    )
+                        color = Color.TRANSPARENT,
+                    ),
                 )
                 span(TypefaceSpan("monospace"))
             }.paragraph()
@@ -94,8 +94,8 @@ private fun Element.render(dipToPx: (Float) -> Float, indentation: Int = 0): Cha
             children().map {
                 it.render(dipToPx, indentation).span(
                     MyBulletSpan(
-                        indentation
-                    )
+                        indentation,
+                    ),
                 )
             }.concat().trim().paragraph()
         }
@@ -108,8 +108,8 @@ private fun Element.render(dipToPx: (Float) -> Float, indentation: Int = 0): Cha
                         MyNumberedBulletSpan(
                             indentation,
                             el.elementSiblingIndex() + startAt,
-                            max
-                        )
+                            max,
+                        ),
                     )
             }.concat().trim().paragraph()
         }
@@ -133,7 +133,7 @@ private operator fun CharSequence.plus(that: CharSequence): CharSequence =
 
 private fun Node.textuals(
     textBlock: (String) -> CharSequence,
-    elementBlock: (Element) -> CharSequence
+    elementBlock: (Element) -> CharSequence,
 ): List<CharSequence> = childNodes().mapNotNull {
     when (it) {
         is Element -> elementBlock(it)

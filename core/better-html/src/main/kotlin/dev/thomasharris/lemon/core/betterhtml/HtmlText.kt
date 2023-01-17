@@ -37,7 +37,6 @@ fun HtmlText(
     style: TextStyle = LocalTextStyle.current,
     resolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
 ) {
-
     val dipToPx = with(LocalDensity.current) {
         { dip: Float ->
             dip.dp.toPx()

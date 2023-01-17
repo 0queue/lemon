@@ -14,7 +14,6 @@ class PressableLinkMovementMethod(private var listener: ((String?) -> Unit)?) : 
     private var pressedSpan: PressableSpan? = null
 
     override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
-
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 pressedSpan = getPressedSpan(widget, buffer, event)?.also { span ->
@@ -25,7 +24,7 @@ class PressableLinkMovementMethod(private var listener: ((String?) -> Unit)?) : 
                     Selection.setSelection(
                         buffer,
                         buffer.getSpanStart(span),
-                        buffer.getSpanEnd(span)
+                        buffer.getSpanEnd(span),
                     )
                 }
 
@@ -35,7 +34,6 @@ class PressableLinkMovementMethod(private var listener: ((String?) -> Unit)?) : 
                 pressedSpan != null
             }
             MotionEvent.ACTION_MOVE -> {
-
                 if (pressedSpan != null && getPressedSpan(widget, buffer, event) != pressedSpan) {
                     pressedSpan?.let {
                         it.isPressed = false
@@ -71,7 +69,7 @@ class PressableLinkMovementMethod(private var listener: ((String?) -> Unit)?) : 
     private fun getPressedSpan(
         textView: TextView,
         spannable: Spannable,
-        event: MotionEvent
+        event: MotionEvent,
     ): PressableSpan? {
         val x = event.x - textView.totalPaddingLeft + textView.scrollX
         val y = event.y - textView.totalPaddingTop + textView.scrollY

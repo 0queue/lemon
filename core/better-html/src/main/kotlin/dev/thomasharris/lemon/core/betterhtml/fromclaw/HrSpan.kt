@@ -12,7 +12,7 @@ class HrSpan(private val lineWidth: Int = 8) : ReplacementSpan() {
         text: CharSequence?,
         start: Int,
         end: Int,
-        fm: Paint.FontMetricsInt?
+        fm: Paint.FontMetricsInt?,
     ): Int {
         return 0 // not sure why 0 works here
     }
@@ -26,9 +26,8 @@ class HrSpan(private val lineWidth: Int = 8) : ReplacementSpan() {
         top: Int,
         y: Int,
         bottom: Int,
-        paint: Paint
+        paint: Paint,
     ) {
-
         val style = paint.style
         val alpha = paint.alpha
 

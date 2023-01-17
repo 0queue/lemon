@@ -31,7 +31,6 @@ class LinkTextView : AppCompatTextView {
      */
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-
         val spannable = text as? Spannable
         if ((movementMethod != null || onCheckIsTextEditor()) && isEnabled && spannable != null && layout != null) {
             return movementMethod.onTouchEvent(this, spannable, event)

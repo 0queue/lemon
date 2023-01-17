@@ -58,14 +58,9 @@ fun Story(
         Row(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            AsyncImage(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 4.dp)
-                    .size(16.dp)
-                    .clip(CircleShape),
-                model = story.submitter.fullAvatarUrl,
-                contentDescription = "",
+            Avatar(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                fullAvatarUrl = story.submitter.fullAvatarUrl,
             )
             Text(
                 modifier = Modifier.padding(2.dp),
@@ -73,6 +68,23 @@ fun Story(
             )
         }
     }
+}
+
+@Composable
+fun Avatar(
+    fullAvatarUrl: String,
+    modifier: Modifier = Modifier,
+) {
+    AsyncImage(
+        modifier = modifier.then(
+            Modifier
+                .padding(end = 4.dp)
+                .size(16.dp)
+                .clip(CircleShape),
+        ),
+        model = fullAvatarUrl,
+        contentDescription = "",
+    )
 }
 
 fun LobstersStory.details(resources: Resources): AnnotatedString {

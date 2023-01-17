@@ -5,12 +5,11 @@ import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LeadingMarginSpan
-import dev.thomasharris.lemon.core.betterhtml.fromclaw.LEADING_MARGIN
 
 class MyNumberedBulletSpan(
     private val indentation: Int,
     private val number: Int,
-    max: Int
+    max: Int,
 ) : LeadingMarginSpan {
 
     private val isLong = max >= 10
@@ -34,9 +33,8 @@ class MyNumberedBulletSpan(
         start: Int,
         end: Int,
         first: Boolean,
-        layout: Layout?
+        layout: Layout?,
     ) {
-
         if ((text as Spanned).getSpanStart(this) == start) {
             val style = paint.style
             val textAlign = paint.textAlign
