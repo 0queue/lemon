@@ -1,5 +1,6 @@
 package dev.thomasharris.lemon.core.data
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingSource
@@ -7,7 +8,8 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.paging3.QueryPagingSource
-import com.github.michaelbull.result.unwrap
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -70,35 +72,37 @@ class CommentsRepository @Inject constructor(
     ) {
         println("loading comments for $storyId")
 
-        val (story, comments) = lobstersService.getStory(storyId).unwrap()
-
-        withContext(Dispatchers.IO) {
-            lobstersDatabase.transaction {
-                lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
-
-                val previousVersion = lobstersDatabase
-                    .storyQueries
-                    .getStory(storyId)
-                    .executeAsOneOrNull()
-
-                val dbStory = story.asDbStory(
-                    pageIndex = previousVersion?.pageIndex,
-                    pageSubIndex = previousVersion?.pageSubIndex,
-                )
-
-                lobstersDatabase.storyQueries.insertStory(dbStory)
-
-                if (clearComments)
+        lobstersService.getStory(storyId).onSuccess { (story, comments) ->
+            withContext(Dispatchers.IO) {
+                lobstersDatabase.transaction {
                     lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
 
-                comments.forEachIndexed { index, comment ->
-                    lobstersDatabase.commentQueries
-                        .insertComment(comment.asDbComment(storyId, index))
+                    val previousVersion = lobstersDatabase
+                        .storyQueries
+                        .getStory(storyId)
+                        .executeAsOneOrNull()
 
-                    lobstersDatabase.userQueries
-                        .insertUser(comment.commentingUser.asDbUser())
+                    val dbStory = story.asDbStory(
+                        pageIndex = previousVersion?.pageIndex,
+                        pageSubIndex = previousVersion?.pageSubIndex,
+                    )
+
+                    lobstersDatabase.storyQueries.insertStory(dbStory)
+
+                    if (clearComments)
+                        lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
+
+                    comments.forEachIndexed { index, comment ->
+                        lobstersDatabase.commentQueries
+                            .insertComment(comment.asDbComment(storyId, index))
+
+                        lobstersDatabase.userQueries
+                            .insertUser(comment.commentingUser.asDbUser())
+                    }
                 }
             }
+        }.onFailure { t ->
+            Log.e("TEH", "lobstersService.getStory failed", t)
         }
     }
 

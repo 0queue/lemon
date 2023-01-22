@@ -1,12 +1,14 @@
 package dev.thomasharris.lemon.core.data
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.cash.sqldelight.paging3.QueryPagingSource
-import com.github.michaelbull.result.unwrap
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
 import dev.thomasharris.lemon.core.database.User
@@ -16,6 +18,7 @@ import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.lobstersapi.StoryNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.UserNetworkEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -46,22 +49,26 @@ class PageRepository @Inject constructor(
         pageIndex: Int,
         clearStories: Boolean = false,
     ) {
-        val page = lobstersService.getPage(pageIndex).unwrap()
+        // TODO remove delay
+        delay(2000)
+        lobstersService.getPage(pageIndex).onSuccess { page ->
+            withContext(Dispatchers.IO) {
+                lobstersDatabase.transaction {
+                    if (clearStories)
+                        lobstersDatabase.storyQueries.deleteStories()
 
-        withContext(Dispatchers.IO) {
-            lobstersDatabase.transaction {
-                if (clearStories)
-                    lobstersDatabase.storyQueries.deleteStories()
-
-                page.forEachIndexed { index, story ->
-                    lobstersDatabase.storyQueries.insertStory(
-                        story.asDbStory(pageIndex, index),
-                    )
-                    lobstersDatabase.userQueries.insertUser(
-                        user = story.submitter.asDbUser(),
-                    )
+                    page.forEachIndexed { index, story ->
+                        lobstersDatabase.storyQueries.insertStory(
+                            story.asDbStory(pageIndex, index),
+                        )
+                        lobstersDatabase.userQueries.insertUser(
+                            user = story.submitter.asDbUser(),
+                        )
+                    }
                 }
             }
+        }.onFailure { t ->
+            Log.e("TEH", "lobstersService.getPage failed", t)
         }
     }
 
@@ -86,11 +93,11 @@ class PageMediator @Inject constructor(
     private val pageRepository: PageRepository,
 ) : RemoteMediator<Int, LobstersStory>() {
 
-    override suspend fun initialize(): InitializeAction =
-        if (pageRepository.isOutOfDate())
-            InitializeAction.LAUNCH_INITIAL_REFRESH
-        else
-            InitializeAction.SKIP_INITIAL_REFRESH
+//    override suspend fun initialize(): InitializeAction =
+//        if (pageRepository.isOutOfDate())
+//            InitializeAction.LAUNCH_INITIAL_REFRESH
+//        else
+//            InitializeAction.SKIP_INITIAL_REFRESH
 
     /**
      * Be careful when changing some loading parameters,
@@ -113,11 +120,13 @@ class PageMediator @Inject constructor(
         state: PagingState<Int, LobstersStory>,
     ): MediatorResult = when (loadType) {
         LoadType.REFRESH -> {
+            Log.i("TEH", "REFRESHING")
             pageRepository.loadPage(pageIndex = 1, clearStories = true)
             MediatorResult.Success(endOfPaginationReached = false)
         }
         LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
         LoadType.APPEND -> {
+            Log.i("TEH", "APPENDING")
             val numberOfLoadedStories = state.pages.sumOf { page ->
                 page.data.size
             }

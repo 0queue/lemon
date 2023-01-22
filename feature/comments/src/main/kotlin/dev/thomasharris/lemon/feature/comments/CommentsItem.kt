@@ -138,32 +138,3 @@ fun LobstersComment.infoLine(
         }
     }
 }
-
-//        val t = Date(min(comment.createdAt.time, comment.updatedAt.time)).postedAgo()
-//        val action = if (comment.createdAt != comment.updatedAt) "edited " else ""
-//        val scoreText = comment.score.let { s ->
-//            when {
-//                s < -2 -> " | $s"
-//                s > 4 -> " | +$s"
-//                else -> ""
-//            }
-//        }
-//
-//        commentAuthor.text =
-//            SpannableString("${comment.username} $action${t.toString(root.context)}$scoreText").apply {
-//                // CAREFUL slightly hardcoded here
-//                when {
-//                    comment.username == comment.storyAuthor -> R.color.comment_original_poster
-//                    comment.userCreatedAt?.isNewUser() == true -> R.color.new_author
-//                    else -> null
-//                }?.let { c ->
-//                    setSpan(
-//                        ForegroundColorSpan(ContextCompat.getColor(root.context, c)),
-//                        0,
-//                        comment.username.length,
-//                        Spannable.SPAN_INCLUSIVE_EXCLUSIVE
-//                    )
-//                }
-//            }
-//
-// username (normal/author/new user) action (none/edited) $ago score (+/-/none)
