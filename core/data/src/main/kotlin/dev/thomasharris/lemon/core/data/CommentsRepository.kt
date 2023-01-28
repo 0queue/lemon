@@ -21,6 +21,7 @@ import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.lobstersapi.CommentNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -72,6 +73,7 @@ class CommentsRepository @Inject constructor(
     ) {
         println("loading comments for $storyId")
 
+        delay(2000)
         lobstersService.getStory(storyId).onSuccess { (story, comments) ->
             withContext(Dispatchers.IO) {
                 lobstersDatabase.transaction {
@@ -129,17 +131,18 @@ class CommentsMediator @AssistedInject constructor(
     private val storyId: String,
 ) : RemoteMediator<Int, LobstersComment>() {
 
-    override suspend fun initialize(): InitializeAction =
-        if (commentsRepository.isOutOfDate(storyId))
-            InitializeAction.LAUNCH_INITIAL_REFRESH
-        else
-            InitializeAction.SKIP_INITIAL_REFRESH
+//    override suspend fun initialize(): InitializeAction =
+//        if (commentsRepository.isOutOfDate(storyId))
+//            InitializeAction.LAUNCH_INITIAL_REFRESH
+//        else
+//            InitializeAction.SKIP_INITIAL_REFRESH
 
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, LobstersComment>,
     ): MediatorResult = when (loadType) {
         LoadType.REFRESH -> {
+            // TODO maybe check if out of date here?
             commentsRepository.loadComments(
                 storyId = storyId,
                 clearComments = true,
