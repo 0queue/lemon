@@ -47,6 +47,7 @@ val CommentDepthColors = listOf(
 fun CommentsItem(
     item: LobstersComment,
     storyAuthor: String,
+    onLinkClicked: (String?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -95,6 +96,7 @@ fun CommentsItem(
             HtmlText(
                 modifier = modifier,
                 text = item.comment,
+                onLinkClicked = onLinkClicked,
             )
         }
     }

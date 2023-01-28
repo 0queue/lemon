@@ -1,7 +1,6 @@
 package dev.thomasharris.lemon.core.betterhtml
 
 import android.graphics.Typeface
-import android.util.Log
 import android.util.TypedValue
 import android.widget.TextView
 import androidx.compose.material3.LocalContentColor
@@ -33,6 +32,7 @@ import dev.thomasharris.lemon.core.betterhtml.fromclaw.fromHtml
 @Composable
 fun HtmlText(
     text: String,
+    onLinkClicked: (String?) -> Unit = {},
     modifier: Modifier = Modifier,
     style: TextStyle = LocalTextStyle.current,
     resolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
@@ -84,9 +84,7 @@ fun HtmlText(
             TextView(
                 context,
             ).apply {
-                movementMethod = PressableLinkMovementMethod {
-                    Log.i("TEH", "LINK CLICKED: $it")
-                }
+                movementMethod = PressableLinkMovementMethod(onLinkClicked)
 
                 setTypeface(typeface)
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)

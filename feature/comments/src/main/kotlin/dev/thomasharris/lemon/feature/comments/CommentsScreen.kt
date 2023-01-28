@@ -1,10 +1,19 @@
 package dev.thomasharris.lemon.feature.comments
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import androidx.annotation.ColorInt
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -21,9 +30,12 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -41,10 +53,27 @@ fun CommentsRoute(
     val story by viewModel.story.collectAsState()
     val pages = viewModel.pager.collectAsLazyPagingItems()
 
+    val context = LocalContext.current
+
+    val closeButtonIcon = remember(context) {
+        // TODO technically now have two sources of truth on that back icon...
+        context.getDrawable(R.drawable.baseline_arrow_back_24)!!.toBitmap()
+    }
+
+    val colorSurface = MaterialTheme.colors.surface.toArgb()
+
     CommentsScreen(
         story = story,
         pages = pages,
         onBackClick = onBackClick,
+        onUrlClicked = { url ->
+            if (url != null)
+                context.launchUrl(
+                    url = url,
+                    closeButtonIcon = closeButtonIcon,
+                    toolbarColor = colorSurface,
+                )
+        },
     )
 }
 
@@ -54,6 +83,7 @@ fun CommentsScreen(
     story: LobstersStory?,
     pages: LazyPagingItems<LobstersComment>,
     onBackClick: () -> Unit,
+    onUrlClicked: (String?) -> Unit,
 ) {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
@@ -92,9 +122,10 @@ fun CommentsScreen(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     if (story != null) item {
+                        val context = LocalContext.current
                         Story(
                             story = story,
-                            onClick = null,
+                            onClick = { onUrlClicked(story.url) },
                         )
                     }
 
@@ -113,6 +144,7 @@ fun CommentsScreen(
                                 CommentsItem(
                                     item = item,
                                     storyAuthor = story?.submitter?.username ?: "",
+                                    onLinkClicked = onUrlClicked,
                                 )
                             }
                         }
@@ -129,4 +161,39 @@ fun CommentsScreen(
             }
         },
     )
+}
+
+// TODO Uri.parse is very throwy, handle it by showing
+//      an error toast or snackbar
+fun Context.launchUrl(
+    url: String,
+    closeButtonIcon: Bitmap,
+    @ColorInt
+    toolbarColor: Int,
+) {
+    val defaultcolors = CustomTabColorSchemeParams.Builder()
+        .setToolbarColor(toolbarColor)
+        .build()
+
+    CustomTabsIntent.Builder()
+        .setStartAnimations(this, R.anim.slide_in_from_right, R.anim.nothing)
+        // Not currently working...
+        .setExitAnimations(this, R.anim.nothing, R.anim.slide_out_to_right)
+        .setCloseButtonIcon(closeButtonIcon)
+        .setDefaultColorSchemeParams(defaultcolors)
+        .build()
+        .launchUrl(this, Uri.parse(url))
+}
+
+fun Drawable.toBitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        intrinsicWidth,
+        intrinsicHeight,
+        Bitmap.Config.ARGB_8888,
+    )
+
+    val canvas = Canvas(bitmap)
+    setBounds(0, 0, canvas.width, canvas.height)
+    draw(canvas)
+    return bitmap
 }
