@@ -94,8 +94,8 @@ fun CommentsItem(
                 )
             }
             HtmlText(
-                modifier = modifier,
                 text = item.comment,
+                modifier = modifier,
                 onLinkClicked = onLinkClicked,
             )
         }

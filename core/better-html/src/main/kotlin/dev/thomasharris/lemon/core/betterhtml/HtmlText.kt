@@ -32,8 +32,8 @@ import dev.thomasharris.lemon.core.betterhtml.fromclaw.fromHtml
 @Composable
 fun HtmlText(
     text: String,
-    onLinkClicked: (String?) -> Unit = {},
     modifier: Modifier = Modifier,
+    onLinkClicked: (String?) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
     resolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
 ) {
