@@ -26,6 +26,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.hours
 
+/**
+ * Why does RemoteMediator go REFRESH -> load page 1 -> APPEND -> load page 1?
+ *
+ * Click on story -> invalidate the paging source due to update. Problem?
+ * update: Not the invalidate, but rather loading from an offset causes it to jump by that offset
+ * ? https://issuetracker.google.com/issues/235319241
+ * idk try placeholders :(
+ */
 @Singleton
 class PageRepository @Inject constructor(
     private val lobstersService: LobstersService,
@@ -34,14 +42,20 @@ class PageRepository @Inject constructor(
 
     fun makePagingSource(): PagingSource<Int, LobstersStory> = QueryPagingSource(
         countQuery = lobstersDatabase.storyQueries.countStoriesOnFrontPage(),
-        transacter = lobstersDatabase.storyQueries,
+        transacter = lobstersDatabase,
         context = Dispatchers.IO,
     ) { limit, offset ->
+
+        Log.i("TEH", "QueryPagingSource queryProvider limit=$limit offset=$offset")
         lobstersDatabase.storyQueries.getStoriesOnFrontPageWithUsers(
             limit = limit,
             offset = offset,
             mapper = mapper,
         )
+    }.also {
+        it.registerInvalidatedCallback {
+            Log.i("TEH", ">>> INVALIDATED <<<")
+        }
     }
 
     // TODO errors from service
@@ -49,13 +63,13 @@ class PageRepository @Inject constructor(
         pageIndex: Int,
         clearStories: Boolean = false,
     ) {
-        // TODO remove delay
-        delay(2000)
+        Log.i("TEH", "PageRepository.loadPage(pageIndex = $pageIndex, clearStories = $clearStories)")
         lobstersService.getPage(pageIndex).onSuccess { page ->
             withContext(Dispatchers.IO) {
                 lobstersDatabase.transaction {
-                    if (clearStories)
+                    if (clearStories) {
                         lobstersDatabase.storyQueries.deleteStories()
+                    }
 
                     page.forEachIndexed { index, story ->
                         lobstersDatabase.storyQueries.insertStory(
@@ -70,6 +84,8 @@ class PageRepository @Inject constructor(
         }.onFailure { t ->
             Log.e("TEH", "lobstersService.getPage failed", t)
         }
+
+        Log.i("TEH", "PageRepository.loadPage(...) IS FINISHED")
     }
 
     suspend fun isOutOfDate(): Boolean {
@@ -99,45 +115,58 @@ class PageMediator @Inject constructor(
 //        else
 //            InitializeAction.SKIP_INITIAL_REFRESH
 
-    /**
-     * Be careful when changing some loading parameters,
-     * while working on this I ended up with a database with
-     * pages 1 and 3 (no 2), and it ended up in a loading loop
-     * and lobste.rs returned a 500 error.  It seems the
-     * [app.cash.sqldelight.paging3.OffsetQueryPagingSource]
-     * in that situation, when initially loading, found the
-     * two pages and thought no more data was available.  This
-     * triggered the [RemoteMediator] to load more pages,
-     * which found 50 items and thus wanted to load page 3,
-     * which it did, which overwrote the page because it exists,
-     * which invalidated the PagingSource, which triggered the initial
-     * load again...
-     *
-     * TODO never let this happen.  Maybe a check in initialize?
-     */
+
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, LobstersStory>,
-    ): MediatorResult = when (loadType) {
-        LoadType.REFRESH -> {
-            Log.i("TEH", "REFRESHING")
-            pageRepository.loadPage(pageIndex = 1, clearStories = true)
-            MediatorResult.Success(endOfPaginationReached = false)
-        }
-        LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
-        LoadType.APPEND -> {
-            Log.i("TEH", "APPENDING")
-            val numberOfLoadedStories = state.pages.sumOf { page ->
-                page.data.size
+    ): MediatorResult {
+        Log.i("TEH", "PageMediator.load(${loadType}, $state)")
+
+        return when (loadType) {
+            LoadType.REFRESH -> {
+                pageRepository.loadPage(pageIndex = 1, clearStories = true)
+                MediatorResult.Success(endOfPaginationReached = false)
             }
+            LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+            LoadType.APPEND -> {
+                val numberOfLoadedStories = state.pages.sumOf { page ->
+                    page.data.size
+                }
 
-            // TODO extract a constant which is like lobster_page_size
-            val numberOfFullPages = numberOfLoadedStories.div(25)
-            val pageIndex = numberOfFullPages.plus(1)
+                // TODO extract a constant which is like lobster_page_size
+                // TODO actually this logic outside of actualPageToLoad is no longer used because
+                //      it is flat out wrong
+                val numberOfFullPages = numberOfLoadedStories.div(25)
+                val pageIndex = numberOfFullPages.plus(1)
 
-            pageRepository.loadPage(pageIndex)
-            // TODO would be cool to add a page limit for conscious media consumption
-            MediatorResult.Success(endOfPaginationReached = false)
+                val pageIndexHistogram = state
+                    .pages
+                    .map { it.data }
+                    .flatten()
+                    .groupBy { it.pageIndex }
+                    .mapValues { (_, l) -> l.size }
+
+                val actualPageToLoad = state
+                    .pages
+                    .map { it.data }
+                    .flatten()
+                    .mapNotNull { it.pageIndex }
+                    .maxOrNull()
+                    ?.plus(1)
+                    ?: 1
+
+                Log.i("TEH", """
+                    Append has decided to load $pageIndex
+                    - number of *loaded* stories: $numberOfLoadedStories
+                    - number of full pages: $numberOfFullPages
+                    - histogram: $pageIndexHistogram
+                    - having counted the data: $actualPageToLoad
+                """.trimIndent())
+
+                pageRepository.loadPage(actualPageToLoad)
+                // TODO would be cool to add a page limit for conscious media consumption
+                MediatorResult.Success(endOfPaginationReached = false)
+            }
         }
     }
 }

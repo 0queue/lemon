@@ -71,9 +71,6 @@ class CommentsRepository @Inject constructor(
         storyId: String,
         clearComments: Boolean = false,
     ) {
-        println("loading comments for $storyId")
-
-        delay(2000)
         lobstersService.getStory(storyId).onSuccess { (story, comments) ->
             withContext(Dispatchers.IO) {
                 lobstersDatabase.transaction {

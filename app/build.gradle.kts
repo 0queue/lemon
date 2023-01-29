@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("dev.thomasharris.lemon.application")
     id("dev.thomasharris.lemon.compose")
@@ -27,6 +29,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+
+            signingConfig = buildTypes.getByName("debug").signingConfig
         }
     }
 }

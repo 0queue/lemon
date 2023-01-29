@@ -17,7 +17,9 @@ dependencies {
 }
 
 sqldelight {
-    database("LobstersDatabase") {
-        packageName = "dev.thomasharris.lemon.core.database"
+    databases {
+        create("LobstersDatabase") {
+            packageName.set("dev.thomasharris.lemon.core.database")
+        }
     }
 }
