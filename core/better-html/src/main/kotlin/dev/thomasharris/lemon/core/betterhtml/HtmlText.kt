@@ -2,7 +2,6 @@ package dev.thomasharris.lemon.core.betterhtml
 
 import android.graphics.Typeface
 import android.util.TypedValue
-import android.widget.TextView
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
@@ -21,14 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.widget.TextViewCompat
+import dev.thomasharris.lemon.core.betterhtml.fromclaw.LinkTextView
 import dev.thomasharris.lemon.core.betterhtml.fromclaw.PressableLinkMovementMethod
 import dev.thomasharris.lemon.core.betterhtml.fromclaw.fromHtml
 
-// private fun render(text: String): AnnotatedString {
-//
-// }
-
-@OptIn(ExperimentalTextApi::class)
 @Composable
 fun HtmlText(
     text: String,
@@ -81,7 +76,7 @@ fun HtmlText(
     AndroidView(
         modifier = modifier,
         factory = { context ->
-            TextView(
+            LinkTextView(
                 context,
             ).apply {
                 movementMethod = PressableLinkMovementMethod(onLinkClicked)
