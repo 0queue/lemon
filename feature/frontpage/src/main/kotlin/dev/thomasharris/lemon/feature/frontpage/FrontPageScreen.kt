@@ -89,6 +89,7 @@ fun FrontPageScreen(
                         Story(
                             story = story,
                             onClick = onClick,
+                            isCompact = true,
                         )
                     }
                 }

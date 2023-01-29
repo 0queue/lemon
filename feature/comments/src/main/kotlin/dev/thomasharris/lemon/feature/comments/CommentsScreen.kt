@@ -67,6 +67,7 @@ fun CommentsRoute(
         pages = pages,
         onBackClick = onBackClick,
         onUrlClicked = { url ->
+            // TODO this should be hoisted even further? It is kind of module-internal though
             if (url != null)
                 context.launchUrl(
                     url = url,
@@ -122,10 +123,16 @@ fun CommentsScreen(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     if (story != null) item {
-                        val context = LocalContext.current
                         Story(
                             story = story,
-                            onClick = { onUrlClicked(story.url) },
+                            onClick = {
+                                // TODO shouldn't even be clickable if no url?
+                                // but how to interact with long click for author?
+                                if (story.url.isNotBlank())
+                                    onUrlClicked(story.url)
+                            },
+                            isCompact = false,
+                            onLinkClicked = { onUrlClicked(it) },
                         )
                     }
 

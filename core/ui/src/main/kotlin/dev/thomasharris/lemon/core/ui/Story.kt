@@ -19,12 +19,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
@@ -35,6 +37,8 @@ import kotlinx.datetime.Instant
 fun Story(
     story: LobstersStory,
     onClick: ((String) -> Unit)?,
+    isCompact: Boolean = true,
+    onLinkClicked: (String?) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -49,10 +53,15 @@ fun Story(
             )
             .padding(8.dp),
     ) {
+        val title = buildString {
+            append(story.title)
+            if (story.description.isNotBlank())
+                append(" ☶")
+        }
         Text(
             modifier = Modifier
                 .fillMaxWidth(),
-            text = story.title,
+            text = title,
         )
 
         Row(
@@ -65,8 +74,16 @@ fun Story(
             Text(
                 modifier = Modifier.padding(2.dp),
                 text = story.details(LocalContext.current.resources),
+                maxLines = if (isCompact) 1 else Int.MAX_VALUE,
+                overflow = if (isCompact) TextOverflow.Ellipsis else TextOverflow.Clip,
             )
         }
+
+        if (!isCompact && story.description.isNotBlank())
+            HtmlText(
+                text = story.description,
+                onLinkClicked = onLinkClicked,
+            )
     }
 }
 
