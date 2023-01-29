@@ -184,6 +184,9 @@ internal val mapper = {
         commentCount: Int,
         description: String,
         tags: List<String>,
+        pageIndex: Int,
+        // TODO probably is non null, should update query to select where not null
+        pageSubIndex: Int?,
         username: String,
         userCreatedAt: Instant,
         isAdmin: Boolean,
@@ -219,5 +222,7 @@ internal val mapper = {
         description = description,
         submitter = user,
         tags = tags,
+        pageIndex = pageIndex,
+        pageSubIndex = pageSubIndex,
     )
 }

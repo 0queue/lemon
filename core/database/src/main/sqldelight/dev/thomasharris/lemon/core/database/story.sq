@@ -44,6 +44,8 @@ SELECT
     s.commentCount,
     s.description,
     s.tags,
+    s.pageIndex,
+    s.pageSubIndex,
     u.username,
     u.createdAt userCreatedAt,
     u.isAdmin,

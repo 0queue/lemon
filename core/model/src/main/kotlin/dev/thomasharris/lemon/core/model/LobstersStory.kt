@@ -12,4 +12,8 @@ data class LobstersStory(
     val description: String,
     val submitter: LobstersUser,
     val tags: List<String>,
+    // TODO figure out how to best have optional page indices.  Only front page needs them,
+    //      comments for example could be deep linked to and not have any
+    val pageIndex: Int?,
+    val pageSubIndex: Int?,
 )

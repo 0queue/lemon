@@ -1,7 +1,9 @@
 package dev.thomasharris.lemon.feature.frontpage
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
@@ -9,6 +11,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,12 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
-import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
 import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
 
@@ -47,7 +51,7 @@ fun FrontPageRoute(
 @Composable
 fun FrontPageScreen(
     onClick: (String) -> Unit,
-    pages: LazyPagingItems<LobstersStory>,
+    pages: LazyPagingItems<FrontPageItem>,
 ) {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
@@ -82,15 +86,25 @@ fun FrontPageScreen(
                 ) {
                     items(
                         items = pages,
-                        key = LobstersStory::shortId,
-                    ) { story ->
-                        requireNotPlaceholder(story)
+                        key = {
+                            when (it) {
+                                is FrontPageItem.Story -> it.story.shortId
+                                is FrontPageItem.Separator -> "uniquekey:${it.pageNumber}"
+                            }
+                        },
+                    ) { item ->
+                        requireNotPlaceholder(item)
 
-                        Story(
-                            story = story,
-                            onClick = onClick,
-                            isCompact = true,
-                        )
+                        when (item) {
+                            is FrontPageItem.Story -> {
+                                Story(
+                                    story = item.story,
+                                    onClick = onClick,
+                                    isCompact = true,
+                                )
+                            }
+                            is FrontPageItem.Separator -> Separator(item.pageNumber)
+                        }
                     }
                 }
 
@@ -105,4 +119,36 @@ fun FrontPageScreen(
             }
         },
     )
+}
+
+@Composable
+fun Separator(
+    pageNumber: Int,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Divider(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
+            thickness = 1.dp,
+        )
+        Text("Page $pageNumber")
+        Divider(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
+            thickness = 1.dp,
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SeparatorPreview() {
+    Separator(pageNumber = 3)
 }

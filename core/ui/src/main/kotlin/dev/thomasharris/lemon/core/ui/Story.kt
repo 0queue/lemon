@@ -171,6 +171,8 @@ class LobstersStoryPreviewProvider : PreviewParameterProvider<LobstersStory> {
                 twitterUsername = null,
             ),
             tags = listOf("stuff", "things"),
+            pageIndex = 0,
+            pageSubIndex = null,
         ),
     )
 }

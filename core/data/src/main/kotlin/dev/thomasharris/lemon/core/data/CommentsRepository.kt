@@ -275,5 +275,7 @@ private val storyMapper = {
         description = description,
         submitter = user,
         tags = tags,
+        pageIndex = null,
+        pageSubIndex = null,
     )
 }
