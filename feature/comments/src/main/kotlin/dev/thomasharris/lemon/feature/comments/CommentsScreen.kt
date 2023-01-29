@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -22,6 +22,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -44,6 +45,7 @@ import androidx.paging.compose.itemsIndexed
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
+import okhttp3.internal.toHexString
 
 @Composable
 fun CommentsRoute(
@@ -60,7 +62,7 @@ fun CommentsRoute(
         context.getDrawable(R.drawable.baseline_arrow_back_24)!!.toBitmap()
     }
 
-    val colorSurface = MaterialTheme.colors.surface.toArgb()
+    val colorSurface = MaterialTheme.colorScheme.surface
 
     CommentsScreen(
         story = story,
@@ -72,7 +74,7 @@ fun CommentsRoute(
                 context.launchUrl(
                     url = url,
                     closeButtonIcon = closeButtonIcon,
-                    toolbarColor = colorSurface,
+                    toolbarColor = colorSurface.toArgb(),
                 )
         },
     )
@@ -178,16 +180,18 @@ fun Context.launchUrl(
     @ColorInt
     toolbarColor: Int,
 ) {
-    val defaultcolors = CustomTabColorSchemeParams.Builder()
+    val defaultColors = CustomTabColorSchemeParams.Builder()
         .setToolbarColor(toolbarColor)
         .build()
+
+    Log.i("TEH", "Toolbar color: ${toolbarColor.toHexString()}")
 
     CustomTabsIntent.Builder()
         .setStartAnimations(this, R.anim.slide_in_from_right, R.anim.nothing)
         // Not currently working...
         .setExitAnimations(this, R.anim.nothing, R.anim.slide_out_to_right)
         .setCloseButtonIcon(closeButtonIcon)
-        .setDefaultColorSchemeParams(defaultcolors)
+        .setDefaultColorSchemeParams(defaultColors)
         .build()
         .launchUrl(this, Uri.parse(url))
 }
