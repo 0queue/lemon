@@ -18,7 +18,6 @@ import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.lobstersapi.StoryNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.UserNetworkEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -115,12 +114,11 @@ class PageMediator @Inject constructor(
 //        else
 //            InitializeAction.SKIP_INITIAL_REFRESH
 
-
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, LobstersStory>,
     ): MediatorResult {
-        Log.i("TEH", "PageMediator.load(${loadType}, $state)")
+        Log.i("TEH", "PageMediator.load($loadType, $state)")
 
         return when (loadType) {
             LoadType.REFRESH -> {
@@ -155,13 +153,16 @@ class PageMediator @Inject constructor(
                     ?.plus(1)
                     ?: 1
 
-                Log.i("TEH", """
+                Log.i(
+                    "TEH",
+                    """
                     Append has decided to load $pageIndex
                     - number of *loaded* stories: $numberOfLoadedStories
                     - number of full pages: $numberOfFullPages
                     - histogram: $pageIndexHistogram
                     - having counted the data: $actualPageToLoad
-                """.trimIndent())
+                    """.trimIndent(),
+                )
 
                 pageRepository.loadPage(actualPageToLoad)
                 // TODO would be cool to add a page limit for conscious media consumption

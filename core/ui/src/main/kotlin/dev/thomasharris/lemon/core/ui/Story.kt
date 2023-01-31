@@ -12,16 +12,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -30,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
+import dev.thomasharris.lemon.core.betterhtml.getBoundingBoxes
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
@@ -37,6 +51,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.net.URI
 
+@OptIn(ExperimentalTextApi::class)
 @Composable
 fun Story(
     story: LobstersStory,
@@ -57,17 +72,103 @@ fun Story(
             )
             .padding(8.dp),
     ) {
-        val title = buildString {
+        val baseTitleSize = 18.sp
+
+        val title = buildAnnotatedString {
             append(story.title)
+
+            story.tags.forEach { tag ->
+                // No great analogue to the old TagSpan, which calculated the space
+                // that the normal size text took up and drew the text smaller, so
+                // fake some extra space... with a space
+                append("  ")
+
+                val style = SpanStyle(
+                    fontSize = baseTitleSize.times(.8f),
+                )
+
+                // bit annoying that tags are represented with a different kind of tag but oh well
+                withAnnotation(tag.toTagKind(), "") {
+                    withStyle(style) {
+                        append(tag)
+                    }
+                }
+            }
+
+            if (story.tags.isNotEmpty())
+                append(" ")
+
             if (story.description.isNotBlank())
                 append(" ☶")
         }
+
+        var onDraw: DrawScope.() -> Unit by remember { mutableStateOf({}) }
+
         Text(
             modifier = Modifier
+                .drawBehind { onDraw() }
                 .fillMaxWidth(),
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            fontSize = 18.sp, // but not too large
+            fontSize = baseTitleSize, // but not too large
+            onTextLayout = { layoutResult ->
+//                val textBounds = title
+//                    .getStringAnnotations("tag", 0, title.length)
+//                    .map { annotation ->
+//                        layoutResult.getBoundingBoxes(annotation.start, annotation.end)
+//                    }
+//                    .flatten()
+
+                // hmmm
+                val colorfulTextBounds = listOf(
+                    "kind:showaskannounceinterview",
+                    "kind:media",
+                    "kind:meta",
+                    "kind:default",
+                )
+                    .map { tag ->
+                        title.getStringAnnotations(tag, 0, title.length)
+                            .map { tag.toTagColors() to it }
+                    }
+                    .flatten()
+                    .map { (colors, annotation) ->
+                        layoutResult.getBoundingBoxes(annotation.start, annotation.end)
+                            .map { colors to it }
+                    }
+                    .flatten()
+
+                onDraw = {
+                    colorfulTextBounds.forEach { (colors, bound) ->
+
+                        val padding = 12f
+
+                        val newSize = Size(
+                            width = bound.size.width.plus(padding),
+                            height = bound.size.height.times(.8f),
+                        )
+                        val newTopLeft = Offset(
+                            x = bound.topLeft.x.minus(padding.div(2f)),
+                            y = bound.topLeft.y.plus(bound.size.height).minus(newSize.height),
+                        )
+
+                        drawRoundRect(
+                            color = colors.fill,
+                            topLeft = newTopLeft,
+                            size = newSize,
+                            cornerRadius = CornerRadius(8f),
+                            style = Fill,
+                        )
+
+                        drawRoundRect(
+                            color = colors.stroke,
+                            topLeft = newTopLeft,
+                            size = newSize,
+                            cornerRadius = CornerRadius(8f),
+                            style = Stroke(2f),
+                        )
+                    }
+                }
+            },
         )
 
         Row(
@@ -167,6 +268,67 @@ fun LobstersStory.shortUrl(): String? {
         ?.host
         ?.removePrefix("www.")
         ?: "???"
+}
+
+fun String.toTagKind(): String {
+    val showAskAnnounceInterview = setOf(
+        "show",
+        "ask",
+        "announce",
+        "interview",
+    )
+
+    val meta = setOf(
+        "meta",
+    )
+
+    val media = setOf(
+        "ask",
+        "audio",
+        "pdf",
+        "show",
+        "slides",
+        "transcript",
+        "video",
+    )
+
+    return when (this) {
+        in showAskAnnounceInterview -> "kind:showaskannounceinterview"
+        in meta -> "kind:meta"
+        in media -> "kind:media"
+        else -> "kind:default"
+    }
+}
+
+data class TagColors(
+    val stroke: Color,
+    val fill: Color,
+)
+
+// TODO these should probably be themes somewhere else
+fun String.toTagColors(): TagColors {
+    return when (this) {
+        "kind:showaskannounceinterview" -> TagColors(
+            stroke = Color(0xFFF0B2B8),
+            fill = Color(0xFFf9ddde),
+        )
+        "kind:meta" -> TagColors(
+            stroke = Color(0xFFc8c8c8),
+            fill = Color(0xFFeeeeee),
+        )
+
+        "kind:media" -> TagColors(
+            stroke = Color(0xFFB2CCF0),
+            fill = Color(0xFFddebf9),
+        )
+
+        "kind:default" -> TagColors(
+            stroke = Color(0xFFd5d458),
+            fill = Color(0xFFfffcd7),
+        )
+
+        else -> error("you should finally make some enums or whatever")
+    }
 }
 
 @Preview(showBackground = true)

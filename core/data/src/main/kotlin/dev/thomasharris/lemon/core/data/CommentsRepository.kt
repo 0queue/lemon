@@ -21,7 +21,6 @@ import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.lobstersapi.CommentNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
