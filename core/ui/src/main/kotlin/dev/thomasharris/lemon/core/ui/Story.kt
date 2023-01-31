@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,12 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersStory
@@ -32,6 +35,7 @@ import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import java.net.URI
 
 @Composable
 fun Story(
@@ -62,6 +66,8 @@ fun Story(
             modifier = Modifier
                 .fillMaxWidth(),
             text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontSize = 18.sp, // but not too large
         )
 
         Row(
@@ -73,7 +79,8 @@ fun Story(
             )
             Text(
                 modifier = Modifier.padding(2.dp),
-                text = story.details(LocalContext.current.resources),
+                text = story.infoLine(LocalContext.current.resources),
+                style = MaterialTheme.typography.bodySmall,
                 maxLines = if (isCompact) 1 else Int.MAX_VALUE,
                 overflow = if (isCompact) TextOverflow.Ellipsis else TextOverflow.Clip,
             )
@@ -104,14 +111,14 @@ fun Avatar(
     )
 }
 
-fun LobstersStory.details(resources: Resources): AnnotatedString {
+fun LobstersStory.infoLine(resources: Resources): AnnotatedString {
     return buildAnnotatedString {
         append("%+d".format(score))
         append(" | ")
         append("by ")
 
         if (submitter.isNewUser())
-            withStyle(style = SpanStyle(Color.Green)) {
+            withStyle(SpanStyle(color = Color.Green)) {
                 append(submitter.username)
             }
         else
@@ -119,6 +126,13 @@ fun LobstersStory.details(resources: Resources): AnnotatedString {
 
         append(" ${createdAt.postedAgo().format(resources)} ")
         append(resources.getQuantityString(R.plurals.numberOfComments, commentCount, commentCount))
+
+        shortUrl()?.let {
+            append(" | ")
+            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                append(it)
+            }
+        }
     }
 }
 
@@ -131,6 +145,29 @@ fun LobstersUser.isNewUser(
     .minus(asOf)
     .absoluteValue
     .inWholeDays <= 70
+
+/**
+ * Returns the hostname from the url without leading www subdomains
+ * If empty, return null
+ * If parsing the url goes bad, return "???"
+ * (It has gone bad before... hence the trimming and try catching)
+ */
+fun LobstersStory.shortUrl(): String? {
+    if (url.isBlank())
+        return null
+
+    return url.trim()
+        .let {
+            try {
+                URI(it)
+            } catch (t: Throwable) {
+                null
+            }
+        }
+        ?.host
+        ?.removePrefix("www.")
+        ?: "???"
+}
 
 @Preview(showBackground = true)
 @Composable
