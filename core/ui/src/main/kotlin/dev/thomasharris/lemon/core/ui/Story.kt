@@ -73,6 +73,7 @@ fun Story(
             .padding(8.dp),
     ) {
         val baseTitleSize = 18.sp
+        val tagSizeScale = .85f
 
         val title = buildAnnotatedString {
             append(story.title)
@@ -84,7 +85,8 @@ fun Story(
                 append("  ")
 
                 val style = SpanStyle(
-                    fontSize = baseTitleSize.times(.8f),
+                    fontSize = baseTitleSize.times(tagSizeScale),
+                    color = Color.Black,
                 )
 
                 // bit annoying that tags are represented with a different kind of tag but oh well
@@ -112,13 +114,6 @@ fun Story(
             style = MaterialTheme.typography.titleLarge,
             fontSize = baseTitleSize, // but not too large
             onTextLayout = { layoutResult ->
-//                val textBounds = title
-//                    .getStringAnnotations("tag", 0, title.length)
-//                    .map { annotation ->
-//                        layoutResult.getBoundingBoxes(annotation.start, annotation.end)
-//                    }
-//                    .flatten()
-
                 // hmmm
                 val colorfulTextBounds = listOf(
                     "kind:showaskannounceinterview",
@@ -144,7 +139,7 @@ fun Story(
 
                         val newSize = Size(
                             width = bound.size.width.plus(padding),
-                            height = bound.size.height.times(.8f),
+                            height = bound.size.height.times(tagSizeScale),
                         )
                         val newTopLeft = Offset(
                             x = bound.topLeft.x.minus(padding.div(2f)),

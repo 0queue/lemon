@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(projects.core.betterHtml)
+    implementation(projects.core.theme)
 
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
@@ -24,5 +25,4 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    debugImplementation(projects.core.theme)
 }
