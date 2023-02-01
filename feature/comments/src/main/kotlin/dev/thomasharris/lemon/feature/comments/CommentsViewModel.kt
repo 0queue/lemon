@@ -10,8 +10,10 @@ import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.thomasharris.lemon.core.data.CommentsMediator
 import dev.thomasharris.lemon.core.data.CommentsRepository
+import dev.thomasharris.lemon.core.model.LobstersComment
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
@@ -47,4 +49,15 @@ class CommentsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = null,
         )
+
+    fun toggleComment(item: LobstersComment) {
+        viewModelScope.launch {
+            val newVisibility = when (item.visibility) {
+                LobstersComment.Visibility.VISIBLE -> LobstersComment.Visibility.COMPACT
+                LobstersComment.Visibility.COMPACT -> LobstersComment.Visibility.VISIBLE
+                LobstersComment.Visibility.GONE -> LobstersComment.Visibility.GONE
+            }
+            commentsRepository.setVisibility(item.shortId, newVisibility)
+        }
+    }
 }

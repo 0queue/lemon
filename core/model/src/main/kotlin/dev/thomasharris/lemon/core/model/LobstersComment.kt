@@ -12,4 +12,11 @@ data class LobstersComment(
     val comment: String,
     val indentLevel: Int, // starts at 1
     val commentingUser: LobstersUser,
-)
+    val visibility: Visibility,
+) {
+    enum class Visibility {
+        VISIBLE,
+        COMPACT,
+        GONE,
+    }
+}

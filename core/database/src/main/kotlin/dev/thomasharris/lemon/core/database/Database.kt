@@ -1,6 +1,7 @@
 package dev.thomasharris.lemon.core.database
 
 import android.content.Context
+import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 
 fun LobstersDatabase(context: Context): LobstersDatabase {
@@ -28,6 +29,7 @@ fun LobstersDatabase(context: Context): LobstersDatabase {
             indentLevelAdapter = IntAdapter,
             scoreAdapter = IntAdapter,
             updatedAtAdapter = InstantAdapter,
+            visibilityAdapter = EnumColumnAdapter<CommentVisibility>(),
         ),
         userAdapter = User.Adapter(
             createdAtAdapter = InstantAdapter,

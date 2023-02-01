@@ -14,6 +14,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dev.thomasharris.lemon.core.database.Comment
+import dev.thomasharris.lemon.core.database.CommentVisibility
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
@@ -58,7 +59,7 @@ class CommentsRepository @Inject constructor(
         transacter = lobstersDatabase.commentQueries,
         context = Dispatchers.IO,
     ) { limit, offset ->
-        lobstersDatabase.commentQueries.getCommentsWithUserByStoryId(
+        lobstersDatabase.commentQueries.getVisibleCommentsWithUserByStoryId(
             storyId = storyId,
             limit = limit,
             offset = offset,
@@ -101,6 +102,14 @@ class CommentsRepository @Inject constructor(
             }
         }.onFailure { t ->
             Log.e("TEH", "lobstersService.getStory failed", t)
+        }
+    }
+
+    suspend fun setVisibility(shortId: String, visibility: LobstersComment.Visibility) {
+        withContext(Dispatchers.IO) {
+            lobstersDatabase.commentQueries.transaction {
+                lobstersDatabase.commentQueries.setVisibility(visibility.toDB(), shortId)
+            }
         }
     }
 
@@ -177,7 +186,20 @@ private fun CommentNetworkEntity.asDbComment(
     indentLevel = indentLevel,
     username = commentingUser.username,
     insertedAt = Clock.System.now(),
+    visibility = CommentVisibility.VISIBLE,
 )
+
+fun CommentVisibility.toModel() = when (this) {
+    CommentVisibility.VISIBLE -> LobstersComment.Visibility.VISIBLE
+    CommentVisibility.COMPACT -> LobstersComment.Visibility.COMPACT
+    CommentVisibility.GONE -> LobstersComment.Visibility.GONE
+}
+
+fun LobstersComment.Visibility.toDB() = when (this) {
+    LobstersComment.Visibility.VISIBLE -> CommentVisibility.VISIBLE
+    LobstersComment.Visibility.COMPACT -> CommentVisibility.COMPACT
+    LobstersComment.Visibility.GONE -> CommentVisibility.GONE
+}
 
 private val commentMapper = {
         shortId: String,
@@ -189,6 +211,7 @@ private val commentMapper = {
         score: Int,
         comment: String,
         indentLevel: Int,
+        visibility: CommentVisibility,
         username: String,
         userCreatedAt: Instant,
         isAdmin: Boolean,
@@ -224,6 +247,7 @@ private val commentMapper = {
         comment = comment,
         indentLevel = indentLevel,
         commentingUser = user,
+        visibility = visibility.toModel(),
     )
 }
 

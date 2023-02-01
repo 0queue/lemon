@@ -56,7 +56,6 @@ fun CommentsItem(
     onLinkClicked: (String?) -> Unit,
     modifier: Modifier = Modifier,
     onItemClicked: () -> Unit = {},
-    isCompact: Boolean = false,
 ) {
     Row(
         modifier = Modifier
@@ -108,7 +107,7 @@ fun CommentsItem(
 //                        text = ""
 //                    )
 
-                val rotation by animateFloatAsState(targetValue = if (isCompact) 180f else 0f)
+                val rotation by animateFloatAsState(targetValue = if (item.isCompact()) 180f else 0f)
 
                 // TODO try to animate and rotate it?
                 Icon(
@@ -118,7 +117,7 @@ fun CommentsItem(
                 )
             }
 
-            AnimatedVisibility(visible = !isCompact) {
+            AnimatedVisibility(visible = !item.isCompact()) {
                 HtmlText(
                     text = item.comment,
                     modifier = modifier,
@@ -128,6 +127,8 @@ fun CommentsItem(
         }
     }
 }
+
+fun LobstersComment.isCompact() = visibility == LobstersComment.Visibility.COMPACT
 
 fun LobstersComment.infoLine(
     storyAuthor: String,

@@ -1,3 +1,4 @@
+import dev.thomasharris.lemon.core.database.CommentVisibility;
 import kotlin.Boolean;
 import kotlin.Int;
 import kotlin.String;
@@ -17,8 +18,8 @@ CREATE TABLE comment (
     comment TEXT NOT NULL,
     indentLevel INTEGER AS Int NOT NULL,
     username TEXT NOT NULL,
-    insertedAt INTEGER AS Instant NOT NULL
---     status INTEGER AS CommentStatus NOT NULL
+    insertedAt INTEGER AS Instant NOT NULL,
+    visibility TEXT AS CommentVisibility NOT NULL
 );
 
 
@@ -27,7 +28,7 @@ CREATE TABLE comment (
 insertComment:
 INSERT OR REPLACE INTO comment VALUES ?;
 
-getCommentsWithUserByStoryId:
+getVisibleCommentsWithUserByStoryId:
 SELECT
     c.shortId,
     c.storyId,
@@ -38,6 +39,7 @@ SELECT
     c.score,
     c.comment,
     c.indentLevel,
+    c.visibility,
     u.username,
     u.createdAt userCreatedAt,
     u.isAdmin,
@@ -52,6 +54,7 @@ FROM comment c
 JOIN user u
 ON c.username = u.username
 WHERE storyId = :storyId
+AND c.visibility != "GONE"
 ORDER BY commentIndex ASC
 LIMIT :limit
 OFFSET :offset;
@@ -71,3 +74,8 @@ SELECT
     count(*)
 FROM comment
 WHERE storyId = :storyId;
+
+setVisibility:
+UPDATE comment
+SET visibility = :visibility
+WHERE shortId = :shortId;

@@ -31,7 +31,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,6 +78,7 @@ fun CommentsRoute(
                     toolbarColor = colorSurface.toArgb(),
                 )
         },
+        onItemClicked = viewModel::toggleComment,
     )
 }
 
@@ -89,6 +89,7 @@ fun CommentsScreen(
     pages: LazyPagingItems<LobstersComment>,
     onBackClick: () -> Unit,
     onUrlClicked: (String?) -> Unit,
+    onItemClicked: (LobstersComment) -> Unit,
 ) {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
@@ -152,17 +153,12 @@ fun CommentsScreen(
                             if (item == null)
                                 Text("ITEM LOADING I GUESS")
                             else {
-                                var isCompact by remember {
-                                    mutableStateOf(false)
-                                }
-
                                 CommentsItem(
                                     item = item,
                                     storyAuthor = story?.submitter?.username ?: "",
                                     onLinkClicked = onUrlClicked,
-                                    isCompact = isCompact,
                                     onItemClicked = {
-                                        isCompact = !isCompact
+                                        onItemClicked(item)
                                     },
                                 )
                             }
