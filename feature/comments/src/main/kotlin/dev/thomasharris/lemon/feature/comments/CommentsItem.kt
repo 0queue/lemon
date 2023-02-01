@@ -1,7 +1,10 @@
 package dev.thomasharris.lemon.feature.comments
 
 import android.content.res.Resources
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -18,8 +21,11 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -49,17 +55,24 @@ fun CommentsItem(
     storyAuthor: String,
     onLinkClicked: (String?) -> Unit,
     modifier: Modifier = Modifier,
+    onItemClicked: () -> Unit = {},
+    isCompact: Boolean = false,
 ) {
     Row(
         modifier = Modifier
             .height(IntrinsicSize.Min)
+            .padding(horizontal = 8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                onItemClicked()
+            }
             .padding(
                 start = item.indentLevel
                     .minus(1)
                     .times(16).dp,
                 top = 4.dp,
                 end = 2.dp,
-                bottom = 16.dp,
+                bottom = 8.dp,
             ),
     ) {
         Box(
@@ -88,16 +101,30 @@ fun CommentsItem(
                     text = item.infoLine(storyAuthor, LocalContext.current.resources),
                 )
                 Spacer(modifier = Modifier.weight(1f))
+
+                // TODO calculate number of children
+//                if (isCompact)
+//                    Text(
+//                        text = ""
+//                    )
+
+                val rotation by animateFloatAsState(targetValue = if (isCompact) 180f else 0f)
+
+                // TODO try to animate and rotate it?
                 Icon(
+                    modifier = Modifier.rotate(rotation),
                     imageVector = Icons.Filled.ArrowDropDown,
                     contentDescription = null, // TODO
                 )
             }
-            HtmlText(
-                text = item.comment,
-                modifier = modifier,
-                onLinkClicked = onLinkClicked,
-            )
+
+            AnimatedVisibility(visible = !isCompact) {
+                HtmlText(
+                    text = item.comment,
+                    modifier = modifier,
+                    onLinkClicked = onLinkClicked,
+                )
+            }
         }
     }
 }

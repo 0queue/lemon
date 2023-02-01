@@ -31,7 +31,9 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -150,10 +152,18 @@ fun CommentsScreen(
                             if (item == null)
                                 Text("ITEM LOADING I GUESS")
                             else {
+                                var isCompact by remember {
+                                    mutableStateOf(false)
+                                }
+
                                 CommentsItem(
                                     item = item,
                                     storyAuthor = story?.submitter?.username ?: "",
                                     onLinkClicked = onUrlClicked,
+                                    isCompact = isCompact,
+                                    onItemClicked = {
+                                        isCompact = !isCompact
+                                    },
                                 )
                             }
                         }
