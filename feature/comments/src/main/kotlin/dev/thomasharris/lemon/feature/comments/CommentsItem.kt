@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -61,6 +62,7 @@ fun CommentsItem(
 ) {
     Row(
         modifier = Modifier
+            .alpha(if (item.score < -2) .7f else 1f)
             .height(IntrinsicSize.Min)
             .padding(horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
