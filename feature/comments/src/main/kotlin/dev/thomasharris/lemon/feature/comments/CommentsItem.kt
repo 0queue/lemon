@@ -6,18 +6,12 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -29,7 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -61,13 +59,10 @@ fun CommentsItem(
     modifier: Modifier = Modifier,
     onItemClicked: () -> Unit = {},
 ) {
+    // TODO remove this row
     Row(
         modifier = Modifier
             .alpha(if (item.score < -2) .7f else 1f)
-            // partial workaround for known issues with
-            // animating content when using IntrinsicSize.Min
-            .animateContentSize()
-            .height(IntrinsicSize.Min)
             .padding(horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable {
@@ -80,23 +75,25 @@ fun CommentsItem(
                 top = 4.dp,
                 end = 2.dp,
                 bottom = 8.dp,
-            ),
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 4.dp)
-                .width(4.dp)
-                .fillMaxHeight()
-                .background(
-                    color = item.indentLevel
+            )
+            .drawBehind {
+                drawRoundRect(
+                    color = item
+                        .indentLevel
                         .minus(1)
                         .mod(CommentDepthColors.size)
                         .let(CommentDepthColors::get),
-                    shape = RoundedCornerShape(8.dp),
-                ),
-        )
-
-        Column {
+                    topLeft = Offset(4.dp.toPx(), 0f),
+                    size = Size(4.dp.toPx(), size.height),
+                    cornerRadius = CornerRadius(8.dp.toPx()),
+                )
+            },
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .animateContentSize(),
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
