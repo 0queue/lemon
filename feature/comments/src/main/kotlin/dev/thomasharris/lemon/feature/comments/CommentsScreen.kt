@@ -11,9 +11,11 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -41,6 +43,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -159,7 +162,7 @@ fun CommentsScreen(
                                 fontStyle = FontStyle.Italic,
                             )
                         }
-                    else
+                    else {
                         items(
                             items = pages,
                             key = { comment -> comment.shortId },
@@ -176,6 +179,11 @@ fun CommentsScreen(
                                 },
                             )
                         }
+
+                        item {
+                            Spacer(modifier = Modifier.size(64.dp))
+                        }
+                    }
                 }
 
                 PullRefreshIndicator(
