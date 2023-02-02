@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.betterhtml.getBoundingBoxes
 import dev.thomasharris.lemon.core.model.LobstersStory
@@ -203,7 +204,10 @@ fun Avatar(
                 .size(16.dp)
                 .clip(CircleShape),
         ),
-        model = fullAvatarUrl,
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(fullAvatarUrl)
+            .crossfade(true)
+            .build(),
         contentDescription = "",
     )
 }
