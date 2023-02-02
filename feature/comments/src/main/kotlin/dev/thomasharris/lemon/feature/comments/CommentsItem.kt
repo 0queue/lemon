@@ -2,6 +2,7 @@ package dev.thomasharris.lemon.feature.comments
 
 import android.content.res.Resources
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -63,6 +64,9 @@ fun CommentsItem(
     Row(
         modifier = Modifier
             .alpha(if (item.score < -2) .7f else 1f)
+            // partial workaround for known issues with
+            // animating content when using IntrinsicSize.Min
+            .animateContentSize()
             .height(IntrinsicSize.Min)
             .padding(horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
@@ -126,7 +130,11 @@ fun CommentsItem(
                 )
             }
 
-            AnimatedVisibility(visible = !item.isCompact()) {
+            AnimatedVisibility(
+                visible = !item.isCompact(),
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
                 HtmlText(
                     text = item.comment,
                     modifier = modifier,
