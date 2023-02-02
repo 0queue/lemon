@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -46,10 +45,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
+import androidx.paging.compose.items
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
+import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
 import okhttp3.internal.toHexString
 
 @Composable
@@ -160,23 +160,21 @@ fun CommentsScreen(
                             )
                         }
                     else
-                        itemsIndexed(
+                        items(
                             items = pages,
-                            key = { _, comment -> comment.shortId },
-                        ) { index, item ->
-                            if (item == null)
-                                Text("ITEM LOADING I GUESS")
-                            else {
-                                CommentsItem(
-                                    modifier = Modifier.animateItemPlacement(),
-                                    item = item,
-                                    storyAuthor = story?.submitter?.username ?: "",
-                                    onLinkClicked = onUrlClicked,
-                                    onItemClicked = {
-                                        onItemClicked(item)
-                                    },
-                                )
-                            }
+                            key = { comment -> comment.shortId },
+                        ) { item ->
+                            requireNotPlaceholder(item)
+
+                            CommentsItem(
+                                modifier = Modifier.animateItemPlacement(),
+                                item = item,
+                                storyAuthor = story?.submitter?.username ?: "",
+                                onLinkClicked = onUrlClicked,
+                                onItemClicked = {
+                                    onItemClicked(item)
+                                },
+                            )
                         }
                 }
 
