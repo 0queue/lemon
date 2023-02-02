@@ -50,14 +50,9 @@ class CommentsViewModel @Inject constructor(
             initialValue = null,
         )
 
-    fun toggleComment(item: LobstersComment) {
+    fun toggleComment(comment: LobstersComment) {
         viewModelScope.launch {
-            val newVisibility = when (item.visibility) {
-                LobstersComment.Visibility.VISIBLE -> LobstersComment.Visibility.COMPACT
-                LobstersComment.Visibility.COMPACT -> LobstersComment.Visibility.VISIBLE
-                LobstersComment.Visibility.GONE -> LobstersComment.Visibility.GONE
-            }
-            commentsRepository.setVisibility(item.shortId, newVisibility)
+            commentsRepository.toggleThread(comment)
         }
     }
 }

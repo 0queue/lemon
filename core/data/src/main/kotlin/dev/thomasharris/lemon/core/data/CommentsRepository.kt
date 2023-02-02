@@ -73,6 +73,8 @@ class CommentsRepository @Inject constructor(
     ) {
         lobstersService.getStory(storyId).onSuccess { (story, comments) ->
             withContext(Dispatchers.IO) {
+                val commentsWithChildCount = comments.countChildren()
+
                 lobstersDatabase.transaction {
                     lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
 
@@ -91,9 +93,15 @@ class CommentsRepository @Inject constructor(
                     if (clearComments)
                         lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
 
-                    comments.forEachIndexed { index, comment ->
+                    commentsWithChildCount.forEachIndexed { index, (comment, childCount) ->
                         lobstersDatabase.commentQueries
-                            .insertComment(comment.asDbComment(storyId, index))
+                            .insertComment(
+                                comment.asDbComment(
+                                    storyId = storyId,
+                                    commentIndex = index,
+                                    childCount = childCount,
+                                ),
+                            )
 
                         lobstersDatabase.userQueries
                             .insertUser(comment.commentingUser.asDbUser())
@@ -105,10 +113,30 @@ class CommentsRepository @Inject constructor(
         }
     }
 
-    suspend fun setVisibility(shortId: String, visibility: LobstersComment.Visibility) {
+    suspend fun toggleThread(comment: LobstersComment) {
+        val (newParentVisibility, newChildVisibility) = when (comment.visibility) {
+            LobstersComment.Visibility.VISIBLE -> LobstersComment.Visibility.COMPACT to LobstersComment.Visibility.GONE
+            LobstersComment.Visibility.COMPACT -> LobstersComment.Visibility.VISIBLE to LobstersComment.Visibility.VISIBLE
+            LobstersComment.Visibility.GONE -> {
+                Log.e("TEH", "Should not be able to toggle a gone item")
+                return
+            }
+        }
+
         withContext(Dispatchers.IO) {
             lobstersDatabase.commentQueries.transaction {
-                lobstersDatabase.commentQueries.setVisibility(visibility.toDB(), shortId)
+                lobstersDatabase.commentQueries.setVisibility(
+                    visibility = newParentVisibility.toDB(),
+                    shortId = comment.shortId,
+                )
+
+                if (comment.childCount > 0) lobstersDatabase.commentQueries.setVisibilityInRange(
+                    visibility = newChildVisibility.toDB(),
+                    storyId = comment.storyId,
+                    lowerIndex = comment.commentIndex,
+                    // essentially the last child index, which is why the bound is inclusive
+                    upperIndex = comment.commentIndex.plus(comment.childCount),
+                )
             }
         }
     }
@@ -170,9 +198,78 @@ class CommentsMediator @AssistedInject constructor(
     }
 }
 
+/**
+ * Iterate backwards over the list of comments, remembering
+ * the last comment index for each indent level and calculate
+ * the child count off of that
+ *
+ * The final thread will have the total number of comments as the
+ * next sibling so that child calculations work as expected
+ *
+ * Also just making sure that I can still work with indices...
+ */
+private fun List<CommentNetworkEntity>.countChildren(): List<Pair<CommentNetworkEntity, Int>> {
+    // move this to mystack when it gets zero length checks
+    if (isEmpty())
+        return emptyList()
+
+    val list = MyList(last().indentLevel, size)
+
+    val result = mutableListOf<Pair<CommentNetworkEntity, Int>>()
+
+    for (commentIndex in size.minus(1) downTo 0) {
+        val comment = get(commentIndex)
+        val nextSiblingOrParentIndex = list.get(comment.indentLevel)
+        list.set(comment.indentLevel, commentIndex)
+        val childCount = nextSiblingOrParentIndex?.minus(commentIndex)?.minus(1) ?: 0
+
+        result.add(0, comment to childCount)
+    }
+
+    return result
+}
+
+/**
+ * a weird little auto extending and retracting list
+ */
+private class MyList constructor(
+    // indent level outside is 1 based but we are 0 based
+    lastIndentLevel: Int,
+    commentCount: Int,
+) {
+
+    private val stack = MutableList(lastIndentLevel.minus(1).plus(1)) { commentCount }
+
+    // TODO plenty of zero length checks and such
+    fun set(indentLevel: Int, siblingOrParentIndex: Int) {
+        val zeroBasedIndentLevel = indentLevel.minus(1)
+
+        // extend
+        if (zeroBasedIndentLevel > stack.size.minus(1)) {
+            // SAFETY: Throws if stack is empty.
+            val extendWith = stack.last()
+            val extension = List(zeroBasedIndentLevel.minus(stack.size.minus(1))) { extendWith }
+            stack.addAll(extension)
+        }
+
+        // update
+        stack[zeroBasedIndentLevel] = siblingOrParentIndex
+
+        // trim
+        for (i in zeroBasedIndentLevel.plus(1) until stack.size) {
+            stack.removeAt(i)
+        }
+    }
+
+    fun get(indentLevel: Int) = stack.getOrNull(indentLevel.minus(1))
+
+    override fun toString() = stack.toString()
+}
+
 private fun CommentNetworkEntity.asDbComment(
     storyId: String,
     commentIndex: Int,
+    childCount: Int,
 ) = Comment(
     shortId = shortId,
     storyId = storyId,
@@ -187,6 +284,7 @@ private fun CommentNetworkEntity.asDbComment(
     username = commentingUser.username,
     insertedAt = Clock.System.now(),
     visibility = CommentVisibility.VISIBLE,
+    childCount = childCount,
 )
 
 fun CommentVisibility.toModel() = when (this) {
@@ -203,7 +301,8 @@ fun LobstersComment.Visibility.toDB() = when (this) {
 
 private val commentMapper = {
         shortId: String,
-        _: String,
+        storyId: String,
+        commentIndex: Int,
         createdAt: Instant,
         updatedAt: Instant,
         isDeleted: Boolean,
@@ -212,6 +311,7 @@ private val commentMapper = {
         comment: String,
         indentLevel: Int,
         visibility: CommentVisibility,
+        childCount: Int,
         username: String,
         userCreatedAt: Instant,
         isAdmin: Boolean,
@@ -239,6 +339,8 @@ private val commentMapper = {
 
     LobstersComment(
         shortId = shortId,
+        storyId = storyId,
+        commentIndex = commentIndex,
         createdAt = createdAt,
         updatedAt = updatedAt,
         isDeleted = isDeleted,
@@ -248,6 +350,7 @@ private val commentMapper = {
         indentLevel = indentLevel,
         commentingUser = user,
         visibility = visibility.toModel(),
+        childCount = childCount,
     )
 }
 

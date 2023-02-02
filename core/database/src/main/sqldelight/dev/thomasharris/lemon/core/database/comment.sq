@@ -19,7 +19,8 @@ CREATE TABLE comment (
     indentLevel INTEGER AS Int NOT NULL,
     username TEXT NOT NULL,
     insertedAt INTEGER AS Instant NOT NULL,
-    visibility TEXT AS CommentVisibility NOT NULL
+    visibility TEXT AS CommentVisibility NOT NULL,
+    childCount INTEGER AS Int NOT NULL
 );
 
 
@@ -32,6 +33,7 @@ getVisibleCommentsWithUserByStoryId:
 SELECT
     c.shortId,
     c.storyId,
+    c.commentIndex,
     c.createdAt,
     c.updatedAt,
     c.isDeleted,
@@ -40,6 +42,7 @@ SELECT
     c.comment,
     c.indentLevel,
     c.visibility,
+    c.childCount,
     u.username,
     u.createdAt userCreatedAt,
     u.isAdmin,
@@ -79,3 +82,10 @@ setVisibility:
 UPDATE comment
 SET visibility = :visibility
 WHERE shortId = :shortId;
+
+setVisibilityInRange:
+UPDATE comment
+SET visibility = :visibility
+WHERE storyId = :storyId
+AND commentIndex > :lowerIndex
+AND commentIndex <= :upperIndex;

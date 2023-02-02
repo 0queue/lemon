@@ -29,7 +29,8 @@ fun LobstersDatabase(context: Context): LobstersDatabase {
             indentLevelAdapter = IntAdapter,
             scoreAdapter = IntAdapter,
             updatedAtAdapter = InstantAdapter,
-            visibilityAdapter = EnumColumnAdapter<CommentVisibility>(),
+            visibilityAdapter = EnumColumnAdapter(),
+            childCountAdapter = IntAdapter,
         ),
         userAdapter = User.Adapter(
             createdAtAdapter = InstantAdapter,

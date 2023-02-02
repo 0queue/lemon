@@ -7,6 +7,10 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatTextView
 
+/**
+ * TODO:
+ * View class dev.thomasharris.lemon.core.betterhtml.fromclaw.LinkTextView is an AppCompat widget that can only be used with a Theme.AppCompat theme (or descendant).
+ */
 class LinkTextView : AppCompatTextView {
 
     // gotta be careful when extending TextView, gotta call everything manually

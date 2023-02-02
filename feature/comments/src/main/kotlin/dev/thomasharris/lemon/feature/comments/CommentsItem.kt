@@ -3,6 +3,8 @@ package dev.thomasharris.lemon.feature.comments
 import android.content.res.Resources
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -99,13 +101,18 @@ fun CommentsItem(
                 Text(
                     text = item.infoLine(storyAuthor, LocalContext.current.resources),
                 )
+
                 Spacer(modifier = Modifier.weight(1f))
 
-                // TODO calculate number of children
-//                if (isCompact)
-//                    Text(
-//                        text = ""
-//                    )
+                AnimatedVisibility(
+                    visible = item.isCompact() && item.childCount > 0,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    Text(
+                        text = item.childCount.toString(10),
+                    )
+                }
 
                 val rotation by animateFloatAsState(targetValue = if (item.isCompact()) 180f else 0f)
 
