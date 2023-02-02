@@ -56,11 +56,12 @@ import java.net.URI
 fun Story(
     story: LobstersStory,
     onClick: ((String) -> Unit)?,
+    modifier: Modifier = Modifier,
     isCompact: Boolean = true,
     onLinkClicked: (String?) -> Unit = {},
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))

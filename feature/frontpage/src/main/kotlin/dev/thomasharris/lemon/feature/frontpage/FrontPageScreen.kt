@@ -1,5 +1,6 @@
 package dev.thomasharris.lemon.feature.frontpage
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,6 +48,7 @@ fun FrontPageRoute(
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class,
 )
 @Composable
 fun FrontPageScreen(
@@ -98,12 +100,16 @@ fun FrontPageScreen(
                         when (item) {
                             is FrontPageItem.Story -> {
                                 Story(
+                                    modifier = Modifier.animateItemPlacement(),
                                     story = item.story,
                                     onClick = onClick,
                                     isCompact = true,
                                 )
                             }
-                            is FrontPageItem.Separator -> Separator(item.pageNumber)
+                            is FrontPageItem.Separator -> Separator(
+                                modifier = Modifier.animateItemPlacement(),
+                                pageNumber = item.pageNumber,
+                            )
                         }
                     }
                 }

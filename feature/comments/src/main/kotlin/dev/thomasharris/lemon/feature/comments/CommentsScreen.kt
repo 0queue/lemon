@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -82,7 +83,11 @@ fun CommentsRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class,
+)
 @Composable
 fun CommentsScreen(
     story: LobstersStory?,
@@ -154,6 +159,7 @@ fun CommentsScreen(
                                 Text("ITEM LOADING I GUESS")
                             else {
                                 CommentsItem(
+                                    modifier = Modifier.animateItemPlacement(),
                                     item = item,
                                     storyAuthor = story?.submitter?.username ?: "",
                                     onLinkClicked = onUrlClicked,
