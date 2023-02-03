@@ -6,14 +6,18 @@ import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,14 +39,21 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -53,7 +64,9 @@ import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
 import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
+import kotlinx.coroutines.launch
 import okhttp3.internal.toHexString
+import kotlin.math.roundToInt
 
 @Composable
 fun CommentsRoute(
@@ -113,7 +126,55 @@ fun CommentsScreen(
         onRefresh = pages::refresh,
     )
 
+    val offsetX = remember { Animatable(0f) }
+    var composableWidth: Int? by remember { mutableStateOf(null) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    var isLastDragAmountPositive: Boolean by remember { mutableStateOf(false) }
+
+    // All this dragging and shadow business should get wrapped up in a "LemonSheet" or something
     Scaffold(
+        modifier = Modifier
+            .onSizeChanged {
+                composableWidth = it.width
+            }
+            .offset {
+                IntOffset(
+                    offsetX.value
+                        .div(1.5f)
+                        .roundToInt(),
+                    0,
+                )
+            }
+            .shadow(4.dp)
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragEnd = {
+                        coroutineScope.launch {
+                            val w = composableWidth
+
+                            if (w != null && offsetX.value.div(1.5f) > w * .3f && isLastDragAmountPositive) {
+                                onBackClick()
+                            } else {
+                                offsetX.animateTo(0f)
+                            }
+                        }
+                    },
+                    onDragCancel = {
+                        Toast
+                            .makeText(context, "DRAG CANCEL", Toast.LENGTH_SHORT)
+                            .show()
+                    },
+                ) { change, dragAmount ->
+                    change.consume()
+                    // zero is positive now, take that mathematicians
+                    isLastDragAmountPositive = dragAmount >= 0
+                    coroutineScope.launch {
+                        offsetX.snapTo(offsetX.value + dragAmount)
+                    }
+                }
+            },
         topBar = {
             TopAppBar(
                 navigationIcon = {
