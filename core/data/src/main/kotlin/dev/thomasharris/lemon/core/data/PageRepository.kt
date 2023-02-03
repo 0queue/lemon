@@ -67,6 +67,8 @@ class PageRepository @Inject constructor(
             "PageRepository.loadPage(pageIndex = $pageIndex, clearStories = $clearStories)",
         )
         lobstersService.getPage(pageIndex).onSuccess { page ->
+            val now = Clock.System.now()
+
             withContext(Dispatchers.IO) {
                 lobstersDatabase.transaction {
                     if (clearStories) {
@@ -75,7 +77,11 @@ class PageRepository @Inject constructor(
 
                     page.forEachIndexed { index, story ->
                         lobstersDatabase.storyQueries.insertStory(
-                            story.asDbStory(pageIndex, index),
+                            story.asDbStory(
+                                pageIndex = pageIndex,
+                                pageSubIndex = index,
+                                insertedAt = now,
+                            ),
                         )
                         lobstersDatabase.userQueries.insertUser(
                             user = story.submitter.asDbUser(),
@@ -183,6 +189,7 @@ class PageMediator @Inject constructor(
 fun StoryNetworkEntity.asDbStory(
     pageIndex: Int?,
     pageSubIndex: Int?,
+    insertedAt: Instant,
 ) = Story(
     shortId = shortId,
     title = title,
@@ -195,7 +202,7 @@ fun StoryNetworkEntity.asDbStory(
     tags = tags,
     pageIndex = pageIndex,
     pageSubIndex = pageSubIndex,
-    insertedAt = Clock.System.now(),
+    insertedAt = insertedAt,
 )
 
 fun UserNetworkEntity.asDbUser(): User = User(

@@ -72,6 +72,8 @@ class CommentsRepository @Inject constructor(
         clearComments: Boolean = false,
     ) {
         lobstersService.getStory(storyId).onSuccess { (story, comments) ->
+            val now = Clock.System.now()
+
             withContext(Dispatchers.IO) {
                 val commentsWithChildCount = comments.countChildren()
 
@@ -86,6 +88,7 @@ class CommentsRepository @Inject constructor(
                     val dbStory = story.asDbStory(
                         pageIndex = previousVersion?.pageIndex,
                         pageSubIndex = previousVersion?.pageSubIndex,
+                        insertedAt = now,
                     )
 
                     lobstersDatabase.storyQueries.insertStory(dbStory)
@@ -99,6 +102,7 @@ class CommentsRepository @Inject constructor(
                                 comment.asDbComment(
                                     storyId = storyId,
                                     commentIndex = index,
+                                    insertedAt = now,
                                     childCount = childCount,
                                 ),
                             )
@@ -178,18 +182,25 @@ class CommentsRepository @Inject constructor(
     }
 
     suspend fun isOutOfDate(
-        shortId: String,
+        storyId: String,
     ): Boolean = withContext(Dispatchers.IO) {
+        val story = lobstersDatabase.storyQueries
+            .getStory(storyId)
+            .executeAsOneOrNull()
+            ?: return@withContext true
+
         val oldestComment = lobstersDatabase.commentQueries
-            .getOldestComment(shortId)
+            .getOldestComment(storyId)
             .executeAsOneOrNull()
             ?.min
             ?.let(Instant::fromEpochMilliseconds)
             ?: return@withContext true
 
-        Clock.System
+        val isOld = Clock.System
             .now()
             .minus(oldestComment) > 1.hours
+
+        story.insertedAt != oldestComment || isOld
     }
 }
 
@@ -200,11 +211,16 @@ class CommentsMediator @AssistedInject constructor(
     private val storyId: String,
 ) : RemoteMediator<Int, LobstersComment>() {
 
-//    override suspend fun initialize(): InitializeAction =
-//        if (commentsRepository.isOutOfDate(storyId))
-//            InitializeAction.LAUNCH_INITIAL_REFRESH
-//        else
-//            InitializeAction.SKIP_INITIAL_REFRESH
+    override suspend fun initialize(): InitializeAction {
+        val initializeAction = if (commentsRepository.isOutOfDate(storyId))
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        else
+            InitializeAction.SKIP_INITIAL_REFRESH
+
+        Log.i("TEH", "### comments initializeAction=$initializeAction ###")
+
+        return initializeAction
+    }
 
     override suspend fun load(
         loadType: LoadType,
@@ -305,6 +321,7 @@ private class MyList constructor(
 private fun CommentNetworkEntity.asDbComment(
     storyId: String,
     commentIndex: Int,
+    insertedAt: Instant,
     childCount: Int,
 ) = Comment(
     shortId = shortId,
@@ -318,7 +335,7 @@ private fun CommentNetworkEntity.asDbComment(
     comment = comment,
     indentLevel = indentLevel,
     username = commentingUser.username,
-    insertedAt = Clock.System.now(),
+    insertedAt = insertedAt,
     visibility = CommentVisibility.VISIBLE,
     childCount = childCount,
 )
