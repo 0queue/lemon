@@ -62,7 +62,10 @@ class PageRepository @Inject constructor(
         pageIndex: Int,
         clearStories: Boolean = false,
     ) {
-        Log.i("TEH", "PageRepository.loadPage(pageIndex = $pageIndex, clearStories = $clearStories)")
+        Log.i(
+            "TEH",
+            "PageRepository.loadPage(pageIndex = $pageIndex, clearStories = $clearStories)",
+        )
         lobstersService.getPage(pageIndex).onSuccess { page ->
             withContext(Dispatchers.IO) {
                 lobstersDatabase.transaction {
@@ -108,11 +111,16 @@ class PageMediator @Inject constructor(
     private val pageRepository: PageRepository,
 ) : RemoteMediator<Int, LobstersStory>() {
 
-//    override suspend fun initialize(): InitializeAction =
-//        if (pageRepository.isOutOfDate())
-//            InitializeAction.LAUNCH_INITIAL_REFRESH
-//        else
-//            InitializeAction.SKIP_INITIAL_REFRESH
+    override suspend fun initialize(): InitializeAction {
+        val initializeAction = if (pageRepository.isOutOfDate())
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        else
+            InitializeAction.SKIP_INITIAL_REFRESH
+
+        Log.i("TEH", "*** INITIALIZING $initializeAction ***")
+
+        return initializeAction
+    }
 
     override suspend fun load(
         loadType: LoadType,
