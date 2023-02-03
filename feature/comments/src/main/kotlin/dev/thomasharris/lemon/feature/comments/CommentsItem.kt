@@ -58,6 +58,7 @@ fun CommentsItem(
     onLinkClicked: (String?) -> Unit,
     modifier: Modifier = Modifier,
     onItemClicked: () -> Unit = {},
+    onDropDownClicked: () -> Unit = {},
 ) {
     // TODO remove this row
     Row(
@@ -121,7 +122,15 @@ fun CommentsItem(
 
                 // TODO try to animate and rotate it?
                 Icon(
-                    modifier = Modifier.rotate(rotation),
+                    modifier = Modifier
+                        .rotate(rotation)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(
+                            // not sold on this, since it blocks clicks essentially
+                            enabled = item.visibility == LobstersComment.Visibility.VISIBLE,
+                        ) {
+                            onDropDownClicked()
+                        },
                     imageVector = Icons.Filled.ArrowDropDown,
                     contentDescription = null, // TODO
                 )

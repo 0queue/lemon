@@ -86,6 +86,7 @@ fun CommentsRoute(
                 )
         },
         onItemClicked = viewModel::toggleComment,
+        onItemDropDownClicked = viewModel::focusComment,
     )
 }
 
@@ -101,6 +102,7 @@ fun CommentsScreen(
     onBackClick: () -> Unit,
     onUrlClicked: (String?) -> Unit,
     onItemClicked: (LobstersComment) -> Unit,
+    onItemDropDownClicked: (LobstersComment) -> Unit,
 ) {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
@@ -176,6 +178,9 @@ fun CommentsScreen(
                                 onLinkClicked = onUrlClicked,
                                 onItemClicked = {
                                     onItemClicked(item)
+                                },
+                                onDropDownClicked = {
+                                    onItemDropDownClicked(item)
                                 },
                             )
                         }

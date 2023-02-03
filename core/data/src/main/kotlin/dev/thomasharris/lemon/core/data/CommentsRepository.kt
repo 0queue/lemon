@@ -141,6 +141,42 @@ class CommentsRepository @Inject constructor(
         }
     }
 
+    suspend fun focusCommentThread(comment: LobstersComment) {
+        withContext(Dispatchers.IO) {
+            lobstersDatabase.commentQueries.transaction {
+                val predecessors = lobstersDatabase.commentQueries.getPredecessors(
+                    storyId = comment.storyId,
+                    commentIndex = comment.commentIndex,
+                ).executeAsList()
+
+                var currentIndentLevel = comment.indentLevel
+
+                for (c in predecessors.reversed()) {
+                    when {
+                        c.indentLevel < currentIndentLevel -> {
+                            lobstersDatabase.commentQueries.setVisibility(
+                                visibility = CommentVisibility.VISIBLE,
+                                shortId = c.shortId,
+                            )
+
+                            currentIndentLevel = c.indentLevel
+                        }
+                        c.indentLevel == currentIndentLevel ->
+                            lobstersDatabase.commentQueries.setVisibility(
+                                visibility = CommentVisibility.COMPACT,
+                                shortId = c.shortId,
+                            )
+                        else ->
+                            lobstersDatabase.commentQueries.setVisibility(
+                                visibility = CommentVisibility.GONE,
+                                shortId = c.shortId,
+                            )
+                    }
+                }
+            }
+        }
+    }
+
     suspend fun isOutOfDate(
         shortId: String,
     ): Boolean = withContext(Dispatchers.IO) {

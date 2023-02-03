@@ -55,4 +55,10 @@ class CommentsViewModel @Inject constructor(
             commentsRepository.toggleThread(comment)
         }
     }
+
+    fun focusComment(comment: LobstersComment) {
+        viewModelScope.launch {
+            commentsRepository.focusCommentThread(comment)
+        }
+    }
 }

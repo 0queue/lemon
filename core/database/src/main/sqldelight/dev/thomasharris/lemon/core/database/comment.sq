@@ -89,3 +89,10 @@ SET visibility = :visibility
 WHERE storyId = :storyId
 AND commentIndex > :lowerIndex
 AND commentIndex <= :upperIndex;
+
+getPredecessors:
+SELECT
+    *
+FROM comment
+WHERE storyId = :storyId
+AND commentIndex < :commentIndex;
