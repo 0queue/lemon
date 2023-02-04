@@ -225,22 +225,17 @@ class CommentsMediator @AssistedInject constructor(
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, LobstersComment>,
-    ): MediatorResult = when (loadType) {
-        LoadType.REFRESH -> {
-            // TODO maybe check if out of date here?
-            commentsRepository.loadComments(
-                storyId = storyId,
-                clearComments = true,
-            )
-            MediatorResult.Success(endOfPaginationReached = false)
-        }
-        LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
-        LoadType.APPEND -> {
-            commentsRepository.loadComments(
-                storyId = storyId,
-                clearComments = true,
-            )
-            MediatorResult.Success(endOfPaginationReached = true)
+    ): MediatorResult {
+        return when (loadType) {
+            LoadType.REFRESH -> {
+                commentsRepository.loadComments(
+                    storyId = storyId,
+                    clearComments = true,
+                )
+                MediatorResult.Success(endOfPaginationReached = false)
+            }
+            LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+            LoadType.APPEND -> MediatorResult.Success(endOfPaginationReached = true)
         }
     }
 
