@@ -1,8 +1,16 @@
 package dev.thomasharris.lemon
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.ColorInt
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -11,12 +19,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
+import dev.thomasharris.lemon.feature.comments.R
 import dev.thomasharris.lemon.feature.comments.installCommentsRoute
 import dev.thomasharris.lemon.feature.comments.navigateToComments
 import dev.thomasharris.lemon.feature.frontpage.installFrontPageRoute
@@ -36,6 +48,21 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberAnimatedNavController()
 
+                    val context = LocalContext.current
+                    val closeButtonIcon = remember(context) {
+                        // TODO technically now have two sources of truth on that back icon...
+                        context.getDrawable(R.drawable.baseline_arrow_back_24)!!.toBitmap()
+                    }
+                    val colorSurface = MaterialTheme.colorScheme.surface
+
+                    val openUrl = { url: String? ->
+                        if (url != null) context.launchUrl(
+                            url = url,
+                            closeButtonIcon = closeButtonIcon,
+                            toolbarColor = colorSurface.toArgb(),
+                        )
+                    }
+
                     AnimatedNavHost(
                         navController = navController,
                         startDestination = "/",
@@ -44,16 +71,53 @@ class MainActivity : ComponentActivity() {
                     ) {
                         installFrontPageRoute(
                             onClick = navController::navigateToComments,
+                            onUrlSwiped = openUrl,
                         )
 
                         installCommentsRoute(
                             onBackClick = navController::popBackStack,
+                            onUrlClicked = openUrl,
                         )
                     }
                 }
             }
         }
     }
+}
+
+// TODO Uri.parse is very throwy, handle it by showing
+//      an error toast or snackbar
+fun Context.launchUrl(
+    url: String,
+    closeButtonIcon: Bitmap,
+    @ColorInt
+    toolbarColor: Int,
+) {
+    val defaultColors = CustomTabColorSchemeParams.Builder()
+        .setToolbarColor(toolbarColor)
+        .build()
+
+    CustomTabsIntent.Builder()
+        .setStartAnimations(this, R.anim.slide_in_from_right, R.anim.nothing)
+        // Not currently working...
+        .setExitAnimations(this, R.anim.nothing, R.anim.slide_out_to_right)
+        .setCloseButtonIcon(closeButtonIcon)
+        .setDefaultColorSchemeParams(defaultColors)
+        .build()
+        .launchUrl(this, Uri.parse(url))
+}
+
+fun Drawable.toBitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        intrinsicWidth,
+        intrinsicHeight,
+        Bitmap.Config.ARGB_8888,
+    )
+
+    val canvas = Canvas(bitmap)
+    setBounds(0, 0, canvas.width, canvas.height)
+    draw(canvas)
+    return bitmap
 }
 
 @Composable

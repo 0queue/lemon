@@ -16,7 +16,6 @@ dependencies {
 
     implementation(libs.kotlinx.datetime)
 
-    implementation(libs.androidx.browser)
     implementation(libs.androidx.compose.material2)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)

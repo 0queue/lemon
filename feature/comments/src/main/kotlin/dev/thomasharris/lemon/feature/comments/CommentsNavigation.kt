@@ -31,6 +31,7 @@ fun NavController.navigateToComments(storyId: String) {
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.installCommentsRoute(
     onBackClick: () -> Unit,
+    onUrlClicked: (String?) -> Unit,
 ) {
     composable(
         route = "s/{$storyIdArg}",
@@ -52,6 +53,7 @@ fun NavGraphBuilder.installCommentsRoute(
     ) {
         CommentsRoute(
             onBackClick = onBackClick,
+            onUrlClicked = onUrlClicked,
         )
     }
 }
