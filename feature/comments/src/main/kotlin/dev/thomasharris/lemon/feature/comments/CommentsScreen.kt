@@ -55,6 +55,7 @@ import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
 import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
 import kotlinx.coroutines.launch
+import java.lang.Float.max
 import kotlin.math.roundToInt
 
 @Composable
@@ -144,7 +145,7 @@ fun CommentsScreen(
                     // zero is positive now, take that mathematicians
                     isLastDragAmountPositive = dragAmount >= 0
                     coroutineScope.launch {
-                        offsetX.snapTo(offsetX.value + dragAmount)
+                        offsetX.snapTo(max(offsetX.value + dragAmount, 0f))
                     }
                 }
             },

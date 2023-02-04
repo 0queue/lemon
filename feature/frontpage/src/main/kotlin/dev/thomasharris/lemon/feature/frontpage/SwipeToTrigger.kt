@@ -95,6 +95,7 @@ fun SwipeToTrigger(
                         state.end()
                     },
                     onHorizontalDrag = { change, dragAmount ->
+                        // TODO try not consuming if the drag amount is positive and the offsetX >= 0
                         change.consume()
                         state.drag(dragAmount)
                     },
