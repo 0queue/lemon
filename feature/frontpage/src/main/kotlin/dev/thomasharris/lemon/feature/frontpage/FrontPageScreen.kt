@@ -48,12 +48,14 @@ import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
 fun FrontPageRoute(
     viewModel: FrontPageViewModel = hiltViewModel(),
     onClick: (String) -> Unit,
+    onLongClick: (String) -> Unit,
     onUrlSwiped: (String?) -> Unit,
 ) {
     val pages = viewModel.pages.collectAsLazyPagingItems()
 
     FrontPageScreen(
         onClick = onClick,
+        onLongClick = onLongClick,
         pages = pages,
         onUrlSwiped = onUrlSwiped,
     )
@@ -67,6 +69,7 @@ fun FrontPageRoute(
 @Composable
 fun FrontPageScreen(
     onClick: (String) -> Unit,
+    onLongClick: (String) -> Unit,
     pages: LazyPagingItems<FrontPageItem>,
     onUrlSwiped: (String?) -> Unit,
 ) {
@@ -159,6 +162,7 @@ fun FrontPageScreen(
                                             modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                                             story = item.story,
                                             onClick = onClick,
+                                            onLongClick = onLongClick,
                                             isCompact = true,
                                         )
                                     },

@@ -1,7 +1,8 @@
 package dev.thomasharris.lemon.core.ui
 
 import android.content.res.Resources
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,11 +53,12 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.net.URI
 
-@OptIn(ExperimentalTextApi::class)
+@OptIn(ExperimentalTextApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun Story(
     story: LobstersStory,
     onClick: ((String) -> Unit)?,
+    onLongClick: ((String) -> Unit)?,
     modifier: Modifier = Modifier,
     isCompact: Boolean = true,
     onLinkClicked: (String?) -> Unit = {},
@@ -66,10 +68,13 @@ fun Story(
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable(
+            .combinedClickable(
                 enabled = onClick != null,
                 onClick = {
                     onClick?.invoke(story.shortId)
+                },
+                onLongClick = {
+                    onLongClick?.invoke(story.submitter.username)
                 },
             )
             .padding(8.dp),
@@ -341,6 +346,7 @@ fun StoryPreview(
         Story(
             story = story,
             onClick = {},
+            onLongClick = {},
         )
     }
 }

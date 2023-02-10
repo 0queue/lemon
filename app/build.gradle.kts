@@ -57,6 +57,7 @@ dependencies {
     implementation(projects.core.theme)
     implementation(projects.feature.comments)
     implementation(projects.feature.frontpage)
+    implementation(projects.feature.userprofile)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)

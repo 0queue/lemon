@@ -15,6 +15,7 @@ fun NavController.navigateToFrontPage() {
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.installFrontPageRoute(
     onClick: (String) -> Unit,
+    onLongClick: (String) -> Unit,
     onUrlSwiped: (String?) -> Unit,
 ) {
     composable(
@@ -25,6 +26,7 @@ fun NavGraphBuilder.installFrontPageRoute(
     ) {
         FrontPageRoute(
             onClick = onClick,
+            onLongClick = onLongClick,
             onUrlSwiped = onUrlSwiped,
         )
     }

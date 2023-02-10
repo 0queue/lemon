@@ -66,6 +66,7 @@ fun CommentsRoute(
     viewModel: CommentsViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     onUrlClicked: (String?) -> Unit,
+    onViewUserProfile: (String) -> Unit,
 ) {
     val story by viewModel.story.collectAsState()
     val pages = viewModel.pager.collectAsLazyPagingItems()
@@ -76,6 +77,7 @@ fun CommentsRoute(
         onBackClick = onBackClick,
         onUrlClicked = onUrlClicked,
         onItemClicked = viewModel::toggleComment,
+        onItemLongClicked = onViewUserProfile,
         onItemDropDownClicked = viewModel::focusComment,
     )
 }
@@ -93,6 +95,7 @@ fun CommentsScreen(
     onUrlClicked: (String?) -> Unit,
     onItemClicked: (LobstersComment) -> Unit,
     onItemDropDownClicked: (LobstersComment) -> Unit,
+    onItemLongClicked: (String) -> Unit,
 ) {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
@@ -198,6 +201,7 @@ fun CommentsScreen(
                                 if (story.url.isNotBlank())
                                     onUrlClicked(story.url)
                             },
+                            onLongClick = onItemLongClicked,
                             isCompact = false,
                             onLinkClicked = { onUrlClicked(it) },
                         )
@@ -227,6 +231,9 @@ fun CommentsScreen(
                                 onLinkClicked = onUrlClicked,
                                 onItemClicked = {
                                     onItemClicked(item)
+                                },
+                                onItemLongClicked = {
+                                    onItemLongClicked(item.commentingUser.username)
                                 },
                                 onDropDownClicked = {
                                     onItemDropDownClicked(item)

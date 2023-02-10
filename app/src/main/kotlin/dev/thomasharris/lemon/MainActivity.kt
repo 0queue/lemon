@@ -32,6 +32,8 @@ import dev.thomasharris.lemon.feature.comments.R
 import dev.thomasharris.lemon.feature.comments.installCommentsRoute
 import dev.thomasharris.lemon.feature.comments.navigateToComments
 import dev.thomasharris.lemon.feature.frontpage.installFrontPageRoute
+import dev.thomasharris.lemon.feature.userprofile.installUserProfileRoute
+import dev.thomasharris.lemon.feature.userprofile.navigateToUserProfile
 
 @OptIn(ExperimentalAnimationApi::class)
 @AndroidEntryPoint
@@ -71,12 +73,18 @@ class MainActivity : ComponentActivity() {
                     ) {
                         installFrontPageRoute(
                             onClick = navController::navigateToComments,
+                            onLongClick = navController::navigateToUserProfile,
                             onUrlSwiped = openUrl,
                         )
 
                         installCommentsRoute(
                             onBackClick = navController::popBackStack,
                             onUrlClicked = openUrl,
+                            onViewUserProfile = navController::navigateToUserProfile,
+                        )
+
+                        installUserProfileRoute(
+                            onBackClicked = navController::popBackStack,
                         )
                     }
                 }

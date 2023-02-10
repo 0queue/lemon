@@ -1,4 +1,4 @@
-package dev.thomasharris.lemon.feature.comments
+package dev.thomasharris.lemon.feature.userprofile
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Spring
@@ -14,30 +14,30 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.google.accompanist.navigation.animation.composable
 
-internal const val storyIdArg = "storyId"
+internal const val usernameArg = "usernameArg"
 
-internal class CommentsArgs(val storyId: String) {
+internal class UserProfileArgs(
+    val username: String,
+) {
     companion object {
         fun fromSavedState(
             savedStateHandle: SavedStateHandle,
-        ) = CommentsArgs(savedStateHandle[storyIdArg]!!)
+        ) = UserProfileArgs(savedStateHandle[usernameArg]!!)
     }
 }
 
-fun NavController.navigateToComments(storyId: String) {
-    navigate("s/$storyId")
+fun NavController.navigateToUserProfile(username: String) {
+    navigate("u/$username")
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-fun NavGraphBuilder.installCommentsRoute(
-    onBackClick: () -> Unit,
-    onUrlClicked: (String?) -> Unit,
-    onViewUserProfile: (String) -> Unit,
+fun NavGraphBuilder.installUserProfileRoute(
+    onBackClicked: () -> Unit,
 ) {
     composable(
-        route = "s/{$storyIdArg}",
+        route = "u/{$usernameArg}",
         arguments = listOf(
-            navArgument(storyIdArg) { type = NavType.StringType },
+            navArgument(usernameArg) { type = NavType.StringType },
         ),
         enterTransition = {
             slideInHorizontally(
@@ -53,11 +53,10 @@ fun NavGraphBuilder.installCommentsRoute(
         popExitTransition = {
             slideOutHorizontally(targetOffsetX = { it })
         },
-    ) {
-        CommentsRoute(
-            onBackClick = onBackClick,
-            onUrlClicked = onUrlClicked,
-            onViewUserProfile = onViewUserProfile,
-        )
-    }
+        content = {
+            UserProfileRoute(
+                onBackClicked = onBackClicked,
+            )
+        },
+    )
 }

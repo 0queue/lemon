@@ -6,7 +6,9 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +53,7 @@ val CommentDepthColors = listOf(
     Color.Cyan,
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommentsItem(
     item: LobstersComment,
@@ -58,6 +61,7 @@ fun CommentsItem(
     onLinkClicked: (String?) -> Unit,
     modifier: Modifier = Modifier,
     onItemClicked: () -> Unit = {},
+    onItemLongClicked: () -> Unit = {},
     onDropDownClicked: () -> Unit = {},
 ) {
     // TODO remove this row
@@ -66,9 +70,10 @@ fun CommentsItem(
             .alpha(if (item.score < -2) .7f else 1f)
             .padding(horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable {
-                onItemClicked()
-            }
+            .combinedClickable(
+                onClick = onItemClicked,
+                onLongClick = onItemLongClicked,
+            )
             .padding(
                 start = item.indentLevel
                     .minus(1)
