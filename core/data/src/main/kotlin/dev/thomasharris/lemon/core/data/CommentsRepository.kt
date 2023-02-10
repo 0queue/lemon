@@ -457,3 +457,30 @@ private val storyMapper = {
         pageSubIndex = null,
     )
 }
+
+internal val userMapper = {
+        username: String,
+        createdAt: Instant,
+        isAdmin: Boolean,
+        about: String,
+        isModerator: Boolean,
+        karma: Int,
+        avatarShortUrl: String,
+        invitedByUser: String?,
+        insertedAt: Instant,
+        githubUsername: String?,
+        twitterUsername: String?, ->
+
+    LobstersUser(
+        username = username,
+        createdAt = createdAt,
+        about = about,
+        isAdmin = isAdmin,
+        isModerator = isModerator,
+        karma = karma,
+        avatarUrl = avatarShortUrl,
+        invitedByUser = invitedByUser,
+        githubUsername = githubUsername,
+        twitterUsername = twitterUsername,
+    )
+}
