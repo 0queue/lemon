@@ -1,5 +1,6 @@
 package dev.thomasharris.lemon.feature.frontpage
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,10 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -108,11 +110,10 @@ fun FrontPageScreen(
 
                         when (item) {
                             is FrontPageItem.Story -> {
-                                val context = LocalContext.current
-
-                                val swipeToTriggerState = rememberSwipeToTriggerState {
-                                    onUrlSwiped(item.story.url)
-                                }
+                                val swipeToTriggerState = rememberSwipeToTriggerState(
+                                    threshold = .2f,
+                                    onTriggered = { onUrlSwiped(item.story.url) },
+                                )
 
                                 SwipeToTrigger(
                                     modifier = Modifier.animateItemPlacement(),
@@ -124,9 +125,14 @@ fun FrontPageScreen(
                                                 .fillMaxSize()
                                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                                         ) {
+                                            val scale by animateFloatAsState(
+                                                targetValue = if (swipeToTriggerState.isAboveThreshold) 1.2f else 1.0f,
+                                            )
+
                                             Icon(
                                                 modifier = Modifier
                                                     .size(48.dp)
+                                                    .scale(scale)
                                                     .padding(end = 16.dp)
                                                     .align(Alignment.CenterEnd),
                                                 painter = painterResource(id = R.drawable.baseline_link_24),
