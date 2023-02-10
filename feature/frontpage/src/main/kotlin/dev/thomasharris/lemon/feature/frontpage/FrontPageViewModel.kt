@@ -26,7 +26,6 @@ class FrontPageViewModel @Inject constructor(
         config = PagingConfig(
             enablePlaceholders = false,
             pageSize = 25,
-//            prefetchDistance = 25,
         ),
         pagingSourceFactory = pageRepository::makePagingSource,
         remoteMediator = pageMediator,

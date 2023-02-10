@@ -1,5 +1,6 @@
 package dev.thomasharris.lemon.feature.frontpage
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -20,11 +21,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -70,13 +77,23 @@ fun FrontPageScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
     val isRefreshing = pages.loadState.refresh is LoadState.Loading
+    val isError = pages.loadState.refresh is LoadState.Error
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = pages::refresh,
     )
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // TODO this relaunches on configuration change which is really annoying
+    //      but since loadState changes to loading on rotation maybe that's correct?
+    if (isError) LaunchedEffect(snackbarHostState) {
+        snackbarHostState.showSnackbar("Failed to refresh")
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -142,7 +159,6 @@ fun FrontPageScreen(
                                     },
                                     foreground = {
                                         Story(
-//                                            modifier = Modifier.animateItemPlacement(),
                                             modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                                             story = item.story,
                                             onClick = onClick,

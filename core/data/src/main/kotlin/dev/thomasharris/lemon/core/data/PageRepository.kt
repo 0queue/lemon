@@ -26,8 +26,6 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.hours
 
 /**
- * Why does RemoteMediator go REFRESH -> load page 1 -> APPEND -> load page 1?
- *
  * Click on story -> invalidate the paging source due to update. Problem?
  * update: Not the invalidate, but rather loading from an offset causes it to jump by that offset
  * ? https://issuetracker.google.com/issues/235319241

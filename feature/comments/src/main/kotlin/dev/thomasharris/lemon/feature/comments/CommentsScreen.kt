@@ -23,11 +23,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,6 +98,8 @@ fun CommentsScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
     val isRefreshing = pages.loadState.refresh is LoadState.Loading
+    val isError = pages.loadState.refresh is LoadState.Error
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = pages::refresh,
@@ -107,8 +112,17 @@ fun CommentsScreen(
 
     var isLastDragAmountPositive: Boolean by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // TODO this relaunches on configuration change which is really annoying
+    //      but since loadState changes to loading on rotation maybe that's correct?
+    if (isError) LaunchedEffect(snackbarHostState) {
+        snackbarHostState.showSnackbar("Failed to refresh")
+    }
+
     // All this dragging and shadow business should get wrapped up in a "LemonSheet" or something
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = Modifier
             .onSizeChanged {
                 composableWidth = it.width
