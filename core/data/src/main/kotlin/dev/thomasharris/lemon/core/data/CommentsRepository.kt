@@ -8,8 +8,12 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.paging3.QueryPagingSource
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.merge
 import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -70,50 +74,50 @@ class CommentsRepository @Inject constructor(
     suspend fun loadComments(
         storyId: String,
         clearComments: Boolean = false,
-    ) {
-        lobstersService.getStory(storyId).onSuccess { (story, comments) ->
-            val now = Clock.System.now()
+    ): Result<Unit, Throwable> = binding {
+        val (story, comments) = lobstersService.getStory(storyId)
+            .onFailure { t -> Log.e("TEH", "lobstersService.getStory failed", t) }
+            .bind()
 
-            withContext(Dispatchers.IO) {
-                val commentsWithChildCount = comments.countChildren()
+        val now = Clock.System.now()
 
-                lobstersDatabase.transaction {
+        withContext(Dispatchers.IO) {
+            val commentsWithChildCount = comments.countChildren()
+
+            lobstersDatabase.transaction {
+                lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
+
+                val previousVersion = lobstersDatabase
+                    .storyQueries
+                    .getStory(storyId)
+                    .executeAsOneOrNull()
+
+                val dbStory = story.asDbStory(
+                    pageIndex = previousVersion?.pageIndex,
+                    pageSubIndex = previousVersion?.pageSubIndex,
+                    insertedAt = now,
+                )
+
+                lobstersDatabase.storyQueries.insertStory(dbStory)
+
+                if (clearComments)
                     lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
 
-                    val previousVersion = lobstersDatabase
-                        .storyQueries
-                        .getStory(storyId)
-                        .executeAsOneOrNull()
+                commentsWithChildCount.forEachIndexed { index, (comment, childCount) ->
+                    lobstersDatabase.commentQueries
+                        .insertComment(
+                            comment.asDbComment(
+                                storyId = storyId,
+                                commentIndex = index,
+                                insertedAt = now,
+                                childCount = childCount,
+                            ),
+                        )
 
-                    val dbStory = story.asDbStory(
-                        pageIndex = previousVersion?.pageIndex,
-                        pageSubIndex = previousVersion?.pageSubIndex,
-                        insertedAt = now,
-                    )
-
-                    lobstersDatabase.storyQueries.insertStory(dbStory)
-
-                    if (clearComments)
-                        lobstersDatabase.commentQueries.deleteCommentsWithStoryId(storyId)
-
-                    commentsWithChildCount.forEachIndexed { index, (comment, childCount) ->
-                        lobstersDatabase.commentQueries
-                            .insertComment(
-                                comment.asDbComment(
-                                    storyId = storyId,
-                                    commentIndex = index,
-                                    insertedAt = now,
-                                    childCount = childCount,
-                                ),
-                            )
-
-                        lobstersDatabase.userQueries
-                            .insertUser(comment.commentingUser.asDbUser())
-                    }
+                    lobstersDatabase.userQueries
+                        .insertUser(comment.commentingUser.asDbUser())
                 }
             }
-        }.onFailure { t ->
-            Log.e("TEH", "lobstersService.getStory failed", t)
         }
     }
 
@@ -228,11 +232,14 @@ class CommentsMediator @AssistedInject constructor(
     ): MediatorResult {
         return when (loadType) {
             LoadType.REFRESH -> {
-                commentsRepository.loadComments(
-                    storyId = storyId,
-                    clearComments = true,
-                )
-                MediatorResult.Success(endOfPaginationReached = false)
+                commentsRepository
+                    .loadComments(
+                        storyId = storyId,
+                        clearComments = true,
+                    )
+                    .map { MediatorResult.Success(endOfPaginationReached = false) }
+                    .mapError(MediatorResult::Error)
+                    .merge()
             }
             LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
             LoadType.APPEND -> MediatorResult.Success(endOfPaginationReached = true)

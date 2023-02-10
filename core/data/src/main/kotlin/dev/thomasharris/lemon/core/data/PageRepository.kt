@@ -7,8 +7,12 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.cash.sqldelight.paging3.QueryPagingSource
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.merge
 import com.github.michaelbull.result.onFailure
-import com.github.michaelbull.result.onSuccess
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
 import dev.thomasharris.lemon.core.database.User
@@ -55,40 +59,42 @@ class PageRepository @Inject constructor(
         }
     }
 
-    // TODO errors from service
+    @Suppress("RedundantUnitExpression")
     suspend fun loadPage(
         pageIndex: Int,
         clearStories: Boolean = false,
-    ) {
+    ): Result<Unit, Throwable> = binding {
         Log.i(
             "TEH",
             "PageRepository.loadPage(pageIndex = $pageIndex, clearStories = $clearStories)",
         )
-        lobstersService.getPage(pageIndex).onSuccess { page ->
-            val now = Clock.System.now()
 
-            withContext(Dispatchers.IO) {
-                lobstersDatabase.transaction {
-                    if (clearStories) {
-                        lobstersDatabase.storyQueries.deleteStories()
-                    }
+        val page = lobstersService
+            .getPage(pageIndex)
+            .onFailure { t -> Log.e("TEH", "lobstersService.getPage failed", t) }
+            .bind()
 
-                    page.forEachIndexed { index, story ->
-                        lobstersDatabase.storyQueries.insertStory(
-                            story.asDbStory(
-                                pageIndex = pageIndex,
-                                pageSubIndex = index,
-                                insertedAt = now,
-                            ),
-                        )
-                        lobstersDatabase.userQueries.insertUser(
-                            user = story.submitter.asDbUser(),
-                        )
-                    }
+        val now = Clock.System.now()
+
+        withContext(Dispatchers.IO) {
+            lobstersDatabase.transaction {
+                if (clearStories) {
+                    lobstersDatabase.storyQueries.deleteStories()
+                }
+
+                page.forEachIndexed { index, story ->
+                    lobstersDatabase.storyQueries.insertStory(
+                        story.asDbStory(
+                            pageIndex = pageIndex,
+                            pageSubIndex = index,
+                            insertedAt = now,
+                        ),
+                    )
+                    lobstersDatabase.userQueries.insertUser(
+                        user = story.submitter.asDbUser(),
+                    )
                 }
             }
-        }.onFailure { t ->
-            Log.e("TEH", "lobstersService.getPage failed", t)
         }
 
         Log.i("TEH", "PageRepository.loadPage(...) IS FINISHED")
@@ -135,7 +141,9 @@ class PageMediator @Inject constructor(
         return when (loadType) {
             LoadType.REFRESH -> {
                 pageRepository.loadPage(pageIndex = 1, clearStories = true)
-                MediatorResult.Success(endOfPaginationReached = false)
+                    .map { MediatorResult.Success(endOfPaginationReached = false) }
+                    .mapError(MediatorResult::Error)
+                    .merge()
             }
             LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
             LoadType.APPEND -> {
@@ -176,9 +184,12 @@ class PageMediator @Inject constructor(
                     """.trimIndent(),
                 )
 
-                pageRepository.loadPage(actualPageToLoad)
                 // TODO would be cool to add a page limit for conscious media consumption
-                MediatorResult.Success(endOfPaginationReached = false)
+
+                pageRepository.loadPage(actualPageToLoad)
+                    .map { MediatorResult.Success(endOfPaginationReached = false) }
+                    .mapError(MediatorResult::Error)
+                    .merge()
             }
         }
     }

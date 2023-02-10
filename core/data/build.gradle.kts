@@ -14,6 +14,7 @@ dependencies {
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlin.result)
+    implementation(libs.kotlin.result.coroutines)
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.app.cash.sqldelight.paging)
