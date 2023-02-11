@@ -33,6 +33,8 @@ fun NavController.navigateToUserProfile(username: String) {
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.installUserProfileRoute(
     onBackClicked: () -> Unit,
+    onUsernameClicked: (username: String) -> Unit,
+    onLinkClicked: (url: String) -> Unit,
 ) {
     composable(
         route = "u/{$usernameArg}",
@@ -56,6 +58,8 @@ fun NavGraphBuilder.installUserProfileRoute(
         content = {
             UserProfileRoute(
                 onBackClicked = onBackClicked,
+                onUsernameClicked = onUsernameClicked,
+                onLinkClicked = onLinkClicked,
             )
         },
     )

@@ -85,6 +85,8 @@ class MainActivity : ComponentActivity() {
 
                         installUserProfileRoute(
                             onBackClicked = navController::popBackStack,
+                            onUsernameClicked = navController::navigateToUserProfile,
+                            onLinkClicked = openUrl,
                         )
                     }
                 }

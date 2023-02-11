@@ -2,6 +2,7 @@ package dev.thomasharris.lemon.core.betterhtml
 
 import android.graphics.Typeface
 import android.util.TypedValue
+import android.view.View
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.widget.TextViewCompat
@@ -30,6 +32,8 @@ fun HtmlText(
     onLinkClicked: (String?) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
     resolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
+    // TODO find evidence of the default
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     val dipToPx = with(LocalDensity.current) {
         { dip: Float ->
@@ -86,6 +90,10 @@ fun HtmlText(
                 setLetterSpacing(letterSpacing)
                 TextViewCompat.setLineHeight(this, lineHeight)
                 setText(parsed)
+                textAlignment = when (textAlign) {
+                    TextAlign.End -> View.TEXT_ALIGNMENT_TEXT_END
+                    else -> View.TEXT_ALIGNMENT_TEXT_START
+                }
             }
         },
     )
