@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -169,106 +168,130 @@ fun UserProfile(
             style = MaterialTheme.typography.labelLarge,
         )
 
-        ConstraintLayout(
+        UserInfoTable(
             modifier = Modifier.fillMaxWidth(),
+            user = user,
+            now = now,
+            onUsernameClicked = onUsernameClicked,
+            onLinkClicked = onLinkClicked,
+        )
+    }
+}
+
+@Composable
+fun UserInfoTable(
+    user: LobstersUser,
+    now: Instant,
+    onUsernameClicked: (username: String) -> Unit,
+    onLinkClicked: (url: String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ConstraintLayout(
+        modifier = modifier,
+    ) {
+        val (joinedTitle, joinedContent) = createRefs()
+        val (privilegesTitle, privilegesContent) = createRefs()
+        val (karmaTitle, karmaContent) = createRefs()
+        val (githubTitle, githubContent) = createRefs()
+        val (twitterTitle, twitterContent) = createRefs()
+
+        Text(
+            modifier = Modifier
+                .constrainAs(joinedTitle) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                },
+            text = "Joined",
+        )
+
+        if (user.isPrivileged) Text(
+            modifier = Modifier
+                .constrainAs(privilegesTitle) {
+                    top.linkTo(joinedContent.bottom)
+                    start.linkTo(parent.start)
+                },
+            text = "Privileges",
+        )
+
+        Text(
+            modifier = Modifier
+                .constrainAs(karmaTitle) {
+                    top.linkTo(if (user.isPrivileged) privilegesContent.bottom else joinedContent.bottom)
+                    start.linkTo(parent.start)
+                },
+            text = "Karma",
+        )
+
+        if (user.githubUsername != null) Text(
+            modifier = Modifier
+                .constrainAs(githubTitle) {
+                    top.linkTo(karmaContent.bottom)
+                    start.linkTo(parent.start)
+                },
+            text = "Github",
+        )
+
+        if (user.twitterUsername != null) Text(
+            modifier = Modifier
+                .constrainAs(twitterTitle) {
+                    top.linkTo(if (user.githubUsername != null) githubContent.bottom else karmaContent.bottom)
+                    start.linkTo(parent.start)
+                },
+            text = "Twitter",
+        )
+
+        val barrier = createEndBarrier(
+            joinedTitle,
+            privilegesTitle,
+            karmaTitle,
+            githubTitle,
+            twitterTitle,
+        )
+
+        val ago = user.createdAt.postedAgo(now).format(LocalContext.current.resources)
+
+        val joined = when (val inviter = user.invitedByUser) {
+            null -> ago
+            else -> """<p>$ago invited by <a>$inviter</a></p>"""
+        }
+
+        Box(
+            modifier = Modifier
+                .constrainAs(joinedContent) {
+                    start.linkTo(barrier)
+                    // TODO baseline alignment from inner android view???
+                    top.linkTo(joinedTitle.top)
+                    end.linkTo(parent.end)
+
+                    width = Dimension.fillToConstraints
+                },
         ) {
-            val (joinedTitle, joinedContent) = createRefs()
-            val (privilegesTitle, privilegesContent) = createRefs()
-            val (karmaTitle, karmaContent) = createRefs()
-            val (githubTitle, githubContent) = createRefs()
-            val (twitterTitle, twitterContent) = createRefs()
+            HtmlText(
+                modifier = Modifier.fillMaxWidth(),
+                text = joined,
+                textAlign = TextAlign.End,
+                onLinkClicked = {
+                    // doing normal link clicking things is annoying because it only
+                    // parses absolute urls right now, and claw gets around it by
+                    // building a spanned string itself
+                    user
+                        .invitedByUser
+                        ?.let(onUsernameClicked)
+                },
+            )
+        }
 
-            val hasPrivileges = true
-            val hasGithub = true
-            val hasTwitter = true
+        "admin".takeIf { user.isAdmin }
+
+        if (user.isPrivileged) {
+            // TODO once the visual logic for tags is extracted, if ever,
+            //      convert these to look the same
+            val privileges = listOfNotNull(
+                "admin".takeIf { user.isAdmin },
+                "moderator".takeIf { user.isModerator },
+            ).joinToString(separator = ", ")
 
             Text(
-                modifier = Modifier
-                    .constrainAs(joinedTitle) {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                    },
-                text = "Joined",
-            )
-
-            if (hasPrivileges) Text(
-                modifier = Modifier
-                    .constrainAs(privilegesTitle) {
-                        top.linkTo(joinedContent.bottom)
-                        start.linkTo(parent.start)
-                    },
-                text = "Privileges",
-            )
-
-            Text(
-                modifier = Modifier
-                    .constrainAs(karmaTitle) {
-                        top.linkTo(if (hasPrivileges) privilegesContent.bottom else joinedContent.bottom)
-                        start.linkTo(parent.start)
-                    },
-                text = "Karma",
-            )
-
-            if (hasGithub) Text(
-                modifier = Modifier
-                    .constrainAs(githubTitle) {
-                        top.linkTo(karmaContent.bottom)
-                        start.linkTo(parent.start)
-                    },
-                text = "Github",
-            )
-
-            if (hasTwitter) Text(
-                modifier = Modifier
-                    .constrainAs(twitterTitle) {
-                        top.linkTo(if (hasGithub) githubContent.bottom else karmaContent.bottom)
-                        start.linkTo(parent.start)
-                    },
-                text = "Twitter",
-            )
-
-            val barrier = createEndBarrier(
-                joinedTitle,
-                privilegesTitle,
-                karmaTitle,
-                githubTitle,
-                twitterTitle,
-            )
-
-            val ago = user.createdAt.postedAgo(now).format(LocalContext.current.resources)
-
-            val joined = when (val inviter = user.invitedByUser) {
-                null -> ago
-                else -> """<p>$ago invited by <a>$inviter</a></p>"""
-            }
-
-            Box(
-                modifier = Modifier
-                    .constrainAs(joinedContent) {
-                        start.linkTo(barrier)
-                        top.linkTo(joinedTitle.top)
-                        end.linkTo(parent.end)
-
-                        width = Dimension.fillToConstraints
-                    }
-                    .background(Color.Red),
-            ) {
-                HtmlText(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = joined,
-                    textAlign = TextAlign.End,
-                    onLinkClicked = {
-                        // doing normal link clicking things is annoying because it only
-                        // parses absolute urls right now, and claw gets around it by
-                        // building a spanned string itself
-                        user
-                            .invitedByUser
-                            ?.let(onUsernameClicked)
-                    },
-                )
-            }
-
-            if (hasPrivileges) Text(
                 modifier = Modifier
                     .constrainAs(privilegesContent) {
                         start.linkTo(barrier)
@@ -277,58 +300,81 @@ fun UserProfile(
 
                         width = Dimension.fillToConstraints
                         height = Dimension.preferredWrapContent
-                    }
-                    .background(Color.Green),
-                text = "Uh idk moderator or something?",
-                textAlign = TextAlign.End,
-            )
-
-            Text(
-                modifier = Modifier
-                    .constrainAs(karmaContent) {
-                        start.linkTo(barrier)
-                        baseline.linkTo(karmaTitle.baseline)
-                        end.linkTo(parent.end)
-
-                        width = Dimension.fillToConstraints
-                    }
-                    .background(Color.Blue),
-                text = "1 billion karma",
-                textAlign = TextAlign.End,
-            )
-
-            if (hasGithub) Text(
-                modifier = Modifier
-                    .constrainAs(githubContent) {
-                        start.linkTo(barrier)
-                        baseline.linkTo(githubTitle.baseline)
-                        end.linkTo(parent.end)
-
-                        width = Dimension.fillToConstraints
-                        height = Dimension.preferredWrapContent
-                    }
-                    .background(Color.Cyan),
-                text = "github link",
-                textAlign = TextAlign.End,
-            )
-
-            if (hasTwitter) Text(
-                modifier = Modifier
-                    .constrainAs(twitterContent) {
-                        start.linkTo(barrier)
-                        baseline.linkTo(twitterTitle.baseline)
-                        end.linkTo(parent.end)
-
-                        width = Dimension.fillToConstraints
-                        height = Dimension.preferredWrapContent
-                    }
-                    .background(Color.Yellow),
-                text = "twitter link",
+                    },
+                text = privileges,
                 textAlign = TextAlign.End,
             )
         }
+
+        Text(
+            modifier = Modifier
+                .constrainAs(karmaContent) {
+                    start.linkTo(barrier)
+                    baseline.linkTo(karmaTitle.baseline)
+                    end.linkTo(parent.end)
+
+                    width = Dimension.fillToConstraints
+                },
+            text = user.karma.toString(10),
+            textAlign = TextAlign.End,
+        )
+
+        user.githubUsername?.let { githubUsername ->
+            Box(
+                modifier = Modifier
+                    .constrainAs(githubContent) {
+                        start.linkTo(barrier)
+                        top.linkTo(githubTitle.top)
+                        end.linkTo(parent.end)
+
+                        width = Dimension.fillToConstraints
+                        height = Dimension.preferredWrapContent
+                    },
+            ) {
+                val text =
+                    """<p><a href="https://github.com/$githubUsername">https://github.com/$githubUsername</a></p>"""
+                HtmlText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = text,
+                    textAlign = TextAlign.End,
+                    onLinkClicked = {
+                        if (it != null)
+                            onLinkClicked(it)
+                    },
+                )
+            }
+        }
+
+        user.twitterUsername?.let { twitterUsername ->
+            Box(
+                modifier = Modifier
+                    .constrainAs(twitterContent) {
+                        start.linkTo(barrier)
+                        top.linkTo(twitterTitle.top)
+                        end.linkTo(parent.end)
+
+                        width = Dimension.fillToConstraints
+                        height = Dimension.preferredWrapContent
+                    },
+            ) {
+                val text =
+                    """<p><a href="https://twitter.com/$twitterUsername">@$twitterUsername</a></p> """
+                HtmlText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = text,
+                    textAlign = TextAlign.End,
+                    onLinkClicked = {
+                        if (it != null)
+                            onLinkClicked(it)
+                    },
+                )
+            }
+        }
     }
 }
+
+private val LobstersUser.isPrivileged: Boolean
+    get() = isAdmin || isModerator
 
 @Preview
 @Composable
@@ -338,14 +384,14 @@ fun UserProfilePreview() {
     val user = LobstersUser(
         username = "0queue",
         createdAt = instant,
-        isAdmin = false,
+        isAdmin = true,
         about = "I do things on Android and other Linux systems",
-        isModerator = false,
+        isModerator = true,
         karma = 1_000_000,
         avatarUrl = "/avatars/jcs-200.png",
         invitedByUser = null,
         githubUsername = "0queue",
-        twitterUsername = null,
+        twitterUsername = "username",
     )
 
     LemonForLobstersTheme {
