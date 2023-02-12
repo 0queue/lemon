@@ -1,10 +1,8 @@
 package dev.thomasharris.lemon.feature.userprofile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -47,7 +45,6 @@ import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.core.ui.format
 import dev.thomasharris.lemon.core.ui.postedAgo
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -73,7 +70,6 @@ fun UserProfileRoute(
     }
 
     UserProfileScreen(
-        username = viewModel.username,
         uiState = uiState,
         snackbarHostState = snackbarHostState,
         onBackClicked = onBackClicked,
@@ -85,8 +81,7 @@ fun UserProfileRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileScreen(
-    username: String,
-    uiState: UserProfileUiState?,
+    uiState: UserProfileViewModel.UiState?,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClicked: () -> Unit,
     onUsernameClicked: (username: String) -> Unit,
@@ -119,11 +114,7 @@ fun UserProfileScreen(
             Box(
                 modifier = Modifier.padding(contentPadding),
             ) {
-                // TODO not great, should be either animated, wait for a load/failed load (as state!)
-                //      or similar.. Maybe watching the db is not appropriate here
-                if (uiState == null)
-                    NoProfileFound(username = username)
-                else
+                if (uiState != null)
                     UserProfile(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -136,17 +127,6 @@ fun UserProfileScreen(
             }
         },
     )
-}
-
-@Composable
-fun NoProfileFound(username: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("User '$username' not found")
-    }
 }
 
 @Composable
@@ -298,7 +278,7 @@ fun UserInfoTable(
         val ago = user.createdAt.postedAgo(now).format(LocalContext.current.resources)
 
         val joined = when (val inviter = user.invitedByUser) {
-            null -> ago
+            null -> """<p>$ago</p>"""
             else -> """<p>$ago invited by <a>$inviter</a></p>"""
         }
 
@@ -327,8 +307,6 @@ fun UserInfoTable(
                 },
             )
         }
-
-        "admin".takeIf { user.isAdmin }
 
         if (user.isPrivileged) {
             // TODO once the visual logic for tags is extracted, if ever,

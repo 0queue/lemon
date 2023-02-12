@@ -40,7 +40,7 @@ class UserProfileViewModel @Inject constructor(
                     .let(markdownParser::parse)
                     .let(htmlRenderer::render)
 
-                UserProfileUiState(
+                UiState(
                     user = user,
                     renderedAbout = renderedAbout,
                 )
@@ -67,12 +67,11 @@ class UserProfileViewModel @Inject constructor(
                 }
         }
     }
+    data class UiState(
+        val user: LobstersUser,
+        val renderedAbout: String,
+    )
 }
-
-data class UserProfileUiState(
-    val user: LobstersUser,
-    val renderedAbout: String,
-)
 
 @Module
 @InstallIn(SingletonComponent::class)

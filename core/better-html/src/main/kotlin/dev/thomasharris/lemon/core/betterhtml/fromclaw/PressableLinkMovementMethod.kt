@@ -9,7 +9,9 @@ import android.widget.TextView
 /**
  * Adapted from https://stackoverflow.com/questions/20856105/change-the-text-color-of-a-single-clickablespan-when-pressed-without-affecting-o
  */
-class PressableLinkMovementMethod(private var listener: ((String?) -> Unit)?) : LinkMovementMethod() {
+class PressableLinkMovementMethod(
+    private var listener: ((String?) -> Unit)?,
+) : LinkMovementMethod() {
 
     private var pressedSpan: PressableSpan? = null
 
@@ -28,8 +30,9 @@ class PressableLinkMovementMethod(private var listener: ((String?) -> Unit)?) : 
                     )
                 }
 
-                if (pressedSpan == null)
-                    listener?.invoke(null)
+                // wtf was I thinking
+                // if (pressedSpan == null)
+                //    listener?.invoke(null)
 
                 pressedSpan != null
             }
