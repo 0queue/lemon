@@ -65,6 +65,8 @@ kotlinx-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1
 kotlinx-datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
 
+org-commonmark = "org.commonmark:commonmark:0.21.0"
+
 # for build-logic only
 gradlePlugin-android = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
 gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,11 +53,11 @@ fun UserProfileRoute(
     onUsernameClicked: (username: String) -> Unit,
     onLinkClicked: (url: String) -> Unit,
 ) {
-    val user by viewModel.user.collectAsState()
+    val uiState by viewModel.user.collectAsState()
 
     UserProfileScreen(
         username = viewModel.username,
-        user = user,
+        uiState = uiState,
         onBackClicked = onBackClicked,
         onUsernameClicked = onUsernameClicked,
         onLinkClicked = onLinkClicked,
@@ -67,7 +68,7 @@ fun UserProfileRoute(
 @Composable
 fun UserProfileScreen(
     username: String,
-    user: LobstersUser?,
+    uiState: UserProfileUiState?,
     onBackClicked: () -> Unit,
     onUsernameClicked: (username: String) -> Unit,
     onLinkClicked: (url: String) -> Unit,
@@ -98,14 +99,15 @@ fun UserProfileScreen(
             Box(
                 modifier = Modifier.padding(contentPadding),
             ) {
-                if (user == null)
+                if (uiState == null)
                     NoProfileFound(username = username)
                 else
                     UserProfile(
                         modifier = Modifier
                             .fillMaxWidth()
                             .nestedScroll(scrollBehavior.nestedScrollConnection),
-                        user = user,
+                        user = uiState.user,
+                        renderedAbout = uiState.renderedAbout,
                         onUsernameClicked = onUsernameClicked,
                         onLinkClicked = onLinkClicked,
                     )
@@ -128,6 +130,7 @@ fun NoProfileFound(username: String) {
 @Composable
 fun UserProfile(
     user: LobstersUser,
+    renderedAbout: String,
     modifier: Modifier = Modifier,
     onUsernameClicked: (username: String) -> Unit,
     onLinkClicked: (url: String) -> Unit,
@@ -145,7 +148,6 @@ fun UserProfile(
                 )
                 .background(MaterialTheme.colorScheme.background)
                 .align(Alignment.CenterHorizontally),
-
         ) {
             AsyncImage(
                 modifier = Modifier
@@ -175,6 +177,29 @@ fun UserProfile(
             onUsernameClicked = onUsernameClicked,
             onLinkClicked = onLinkClicked,
         )
+
+        if (user.about.isBlank()) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                text = "A mystery...",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
+                fontStyle = FontStyle.Italic,
+            )
+        } else {
+            HtmlText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                text = renderedAbout,
+                onLinkClicked = {
+                    if (it != null)
+                        onLinkClicked(it)
+                },
+            )
+        }
     }
 }
 
@@ -397,6 +422,7 @@ fun UserProfilePreview() {
     LemonForLobstersTheme {
         UserProfile(
             user = user,
+            renderedAbout = """<p>${user.about}</p>""",
             onUsernameClicked = {},
             onLinkClicked = {},
         )
