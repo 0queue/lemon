@@ -23,4 +23,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 
     implementation(libs.org.commonmark)
+
+    implementation(libs.kotlin.result)
 }

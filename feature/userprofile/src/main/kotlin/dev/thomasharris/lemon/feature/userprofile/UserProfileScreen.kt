@@ -16,13 +16,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +47,8 @@ import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.core.ui.format
 import dev.thomasharris.lemon.core.ui.postedAgo
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -55,9 +61,21 @@ fun UserProfileRoute(
 ) {
     val uiState by viewModel.user.collectAsState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel.errorChannel) {
+        viewModel
+            .errorChannel
+            .receiveAsFlow()
+            .collect {
+                snackbarHostState.showSnackbar("Failed to refresh user")
+            }
+    }
+
     UserProfileScreen(
         username = viewModel.username,
         uiState = uiState,
+        snackbarHostState = snackbarHostState,
         onBackClicked = onBackClicked,
         onUsernameClicked = onUsernameClicked,
         onLinkClicked = onLinkClicked,
@@ -69,6 +87,7 @@ fun UserProfileRoute(
 fun UserProfileScreen(
     username: String,
     uiState: UserProfileUiState?,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClicked: () -> Unit,
     onUsernameClicked: (username: String) -> Unit,
     onLinkClicked: (url: String) -> Unit,
@@ -79,6 +98,7 @@ fun UserProfileScreen(
     Scaffold(
         modifier = Modifier
             .shadow(4.dp),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -99,6 +119,8 @@ fun UserProfileScreen(
             Box(
                 modifier = Modifier.padding(contentPadding),
             ) {
+                // TODO not great, should be either animated, wait for a load/failed load (as state!)
+                //      or similar.. Maybe watching the db is not appropriate here
                 if (uiState == null)
                     NoProfileFound(username = username)
                 else
