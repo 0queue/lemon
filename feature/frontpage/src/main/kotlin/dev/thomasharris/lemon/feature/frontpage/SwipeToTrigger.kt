@@ -23,6 +23,7 @@ import java.lang.Float.min
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
+// TODO combine with swipe to navigate one day
 class SwipeToTriggerState(
     private val scope: CoroutineScope,
     private val onTriggered: () -> Unit,

@@ -1,14 +1,10 @@
 package dev.thomasharris.lemon.feature.comments
 
-import android.widget.Toast
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,20 +29,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -56,10 +45,9 @@ import androidx.paging.compose.items
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
+import dev.thomasharris.lemon.core.ui.SwipeToNavigate
+import dev.thomasharris.lemon.core.ui.rememberSwipeToNavigateState
 import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
-import kotlinx.coroutines.launch
-import java.lang.Float.max
-import kotlin.math.roundToInt
 
 @Composable
 fun CommentsRoute(
@@ -71,15 +59,23 @@ fun CommentsRoute(
     val story by viewModel.story.collectAsState()
     val pages = viewModel.pager.collectAsLazyPagingItems()
 
-    CommentsScreen(
-        story = story,
-        pages = pages,
-        onBackClick = onBackClick,
-        onUrlClicked = onUrlClicked,
-        onItemClicked = viewModel::toggleComment,
-        onItemLongClicked = onViewUserProfile,
-        onItemDropDownClicked = viewModel::focusComment,
-    )
+    val swipeToNavigateState = rememberSwipeToNavigateState {
+        onBackClick()
+    }
+
+    SwipeToNavigate(
+        state = swipeToNavigateState,
+    ) {
+        CommentsScreen(
+            story = story,
+            pages = pages,
+            onBackClick = onBackClick,
+            onUrlClicked = onUrlClicked,
+            onItemClicked = viewModel::toggleComment,
+            onItemLongClicked = onViewUserProfile,
+            onItemDropDownClicked = viewModel::focusComment,
+        )
+    }
 }
 
 @OptIn(
@@ -108,13 +104,6 @@ fun CommentsScreen(
         onRefresh = pages::refresh,
     )
 
-    val offsetX = remember { Animatable(0f) }
-    var composableWidth: Int? by remember { mutableStateOf(null) }
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-
-    var isLastDragAmountPositive: Boolean by remember { mutableStateOf(false) }
-
     val snackbarHostState = remember { SnackbarHostState() }
 
     // TODO this relaunches on configuration change which is really annoying
@@ -126,46 +115,6 @@ fun CommentsScreen(
     // All this dragging and shadow business should get wrapped up in a "LemonSheet" or something
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        modifier = Modifier
-            .onSizeChanged {
-                composableWidth = it.width
-            }
-            .offset {
-                IntOffset(
-                    offsetX.value
-                        .div(1.5f)
-                        .roundToInt(),
-                    0,
-                )
-            }
-            .shadow(4.dp)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragEnd = {
-                        coroutineScope.launch {
-                            val w = composableWidth
-
-                            if (w != null && offsetX.value.div(1.5f) > w * .3f && isLastDragAmountPositive) {
-                                onBackClick()
-                            } else {
-                                offsetX.animateTo(0f)
-                            }
-                        }
-                    },
-                    onDragCancel = {
-                        Toast
-                            .makeText(context, "DRAG CANCEL", Toast.LENGTH_SHORT)
-                            .show()
-                    },
-                ) { change, dragAmount ->
-                    change.consume()
-                    // zero is positive now, take that mathematicians
-                    isLastDragAmountPositive = dragAmount >= 0
-                    coroutineScope.launch {
-                        offsetX.snapTo(max(offsetX.value + dragAmount, 0f))
-                    }
-                }
-            },
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -259,40 +208,3 @@ fun CommentsScreen(
         },
     )
 }
-
-// TODO Uri.parse is very throwy, handle it by showing
-//      an error toast or snackbar
-// fun Context.launchUrl(
-//    url: String,
-//    closeButtonIcon: Bitmap,
-//    @ColorInt
-//    toolbarColor: Int,
-// ) {
-//    val defaultColors = CustomTabColorSchemeParams.Builder()
-//        .setToolbarColor(toolbarColor)
-//        .build()
-//
-//    Log.i("TEH", "Toolbar color: ${toolbarColor.toHexString()}")
-//
-//    CustomTabsIntent.Builder()
-//        .setStartAnimations(this, R.anim.slide_in_from_right, R.anim.nothing)
-//        // Not currently working...
-//        .setExitAnimations(this, R.anim.nothing, R.anim.slide_out_to_right)
-//        .setCloseButtonIcon(closeButtonIcon)
-//        .setDefaultColorSchemeParams(defaultColors)
-//        .build()
-//        .launchUrl(this, Uri.parse(url))
-// }
-//
-// fun Drawable.toBitmap(): Bitmap {
-//    val bitmap = Bitmap.createBitmap(
-//        intrinsicWidth,
-//        intrinsicHeight,
-//        Bitmap.Config.ARGB_8888,
-//    )
-//
-//    val canvas = Canvas(bitmap)
-//    setBounds(0, 0, canvas.width, canvas.height)
-//    draw(canvas)
-//    return bitmap
-// }

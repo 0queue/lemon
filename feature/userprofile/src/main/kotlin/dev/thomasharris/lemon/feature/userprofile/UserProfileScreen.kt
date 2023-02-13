@@ -43,8 +43,10 @@ import coil.request.ImageRequest
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
+import dev.thomasharris.lemon.core.ui.SwipeToNavigate
 import dev.thomasharris.lemon.core.ui.format
 import dev.thomasharris.lemon.core.ui.postedAgo
+import dev.thomasharris.lemon.core.ui.rememberSwipeToNavigateState
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -69,13 +71,21 @@ fun UserProfileRoute(
             }
     }
 
-    UserProfileScreen(
-        uiState = uiState,
-        snackbarHostState = snackbarHostState,
-        onBackClicked = onBackClicked,
-        onUsernameClicked = onUsernameClicked,
-        onLinkClicked = onLinkClicked,
-    )
+    val swipeToNavigateState = rememberSwipeToNavigateState {
+        onBackClicked()
+    }
+
+    SwipeToNavigate(
+        state = swipeToNavigateState,
+    ) {
+        UserProfileScreen(
+            uiState = uiState,
+            snackbarHostState = snackbarHostState,
+            onBackClicked = onBackClicked,
+            onUsernameClicked = onUsernameClicked,
+            onLinkClicked = onLinkClicked,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,8 +101,6 @@ fun UserProfileScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
     Scaffold(
-        modifier = Modifier
-            .shadow(4.dp),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
