@@ -50,6 +50,8 @@ com-google-accompanist-navigation = "com.google.accompanist:accompanist-navigati
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
+com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.18.0"
+
 jsoup = "org.jsoup:jsoup:1.15.3"
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
