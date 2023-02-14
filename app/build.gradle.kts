@@ -55,6 +55,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.database)
     implementation(projects.core.theme)
+    implementation(projects.core.ui)
     implementation(projects.feature.comments)
     implementation(projects.feature.frontpage)
     implementation(projects.feature.userprofile)
@@ -68,4 +69,6 @@ dependencies {
     implementation(libs.androidx.paging.compose)
 
     implementation(libs.com.google.accompanist.navigation)
+
+    implementation(libs.coil)
 }

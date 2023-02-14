@@ -1,6 +1,5 @@
 package dev.thomasharris.lemon.feature.userprofile
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -28,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,12 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.imageLoader
 import coil.request.ImageRequest
-import coil.request.SuccessResult
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
@@ -60,7 +55,6 @@ import dev.thomasharris.lemon.core.ui.rememberSwipeToNavigateState
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import materialcolorutilities.quantize.QuantizerCelebi
 import materialcolorutilities.scheme.Scheme
 
 @Composable
@@ -71,6 +65,7 @@ fun UserProfileRoute(
     onLinkClicked: (url: String) -> Unit,
 ) {
     val uiState by viewModel.user.collectAsState()
+    val themeInfo by viewModel.scheme(LocalContext.current).collectAsState(initial = null)
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -92,6 +87,7 @@ fun UserProfileRoute(
     ) {
         UserProfileScreen(
             uiState = uiState,
+            themeInfo = themeInfo,
             snackbarHostState = snackbarHostState,
             onBackClicked = onBackClicked,
             onUsernameClicked = onUsernameClicked,
@@ -104,6 +100,7 @@ fun UserProfileRoute(
 @Composable
 fun UserProfileScreen(
     uiState: UserProfileViewModel.UiState?,
+    themeInfo: UserProfileViewModel.ThemeInfo?,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClicked: () -> Unit,
     onUsernameClicked: (username: String) -> Unit,
@@ -112,27 +109,15 @@ fun UserProfileScreen(
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
-    val context = LocalContext.current
-
-    var userProfileColorScheme: ColorScheme? by remember {
-        mutableStateOf(null)
-    }
-
     val darkTheme = isSystemInDarkTheme()
 
-    // TODO I think the proper solution would be to inject
-    //      an image loader into the ViewModel
-    //      and map the user flow to include a scheme
-    LaunchedEffect(uiState, darkTheme, context) {
-        val (_, scheme) = uiState
-            ?.generateScheme(darkTheme, context)
-            ?: return@LaunchedEffect
-
-        userProfileColorScheme = scheme.toM3()
-    }
+    val colorScheme = themeInfo
+        ?.let { if (darkTheme) it.darkScheme else it.lightScheme }
+        ?.toM3()
+        ?: MaterialTheme.colorScheme
 
     MaterialTheme(
-        colorScheme = userProfileColorScheme ?: MaterialTheme.colorScheme,
+        colorScheme = colorScheme,
     ) {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -456,43 +441,6 @@ fun UserInfoTable(
 
 private val LobstersUser.isPrivileged: Boolean
     get() = isAdmin || isModerator
-
-suspend fun UserProfileViewModel.UiState.generateScheme(
-    darkTheme: Boolean,
-    context: Context,
-): Pair<Color, Scheme>? {
-    val res = context.imageLoader.execute(
-        ImageRequest.Builder(context)
-            .data(user.fullAvatarUrl)
-            .crossfade(true)
-            .allowHardware(false)
-            .build(),
-    )
-
-    if (res !is SuccessResult)
-        return null
-
-    val bitmap = res.drawable.toBitmap()
-    val pixels = IntArray(bitmap.width * bitmap.height)
-
-    bitmap.getPixels(
-        pixels,
-        0,
-        bitmap.width,
-        0,
-        0,
-        bitmap.width,
-        bitmap.height,
-    )
-
-    // TODO idk probably should quantize and score rather than maxColors=1
-    val colors = QuantizerCelebi.quantize(pixels, 1)
-
-    val argb = colors.entries.first().key
-
-    val generator = if (darkTheme) Scheme::dark else Scheme::light
-    return Color(argb) to generator(argb)
-}
 
 @Preview
 @Composable

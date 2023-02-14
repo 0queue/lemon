@@ -1,6 +1,7 @@
 plugins {
     id("dev.thomasharris.lemon.library")
     id("dev.thomasharris.lemon.compose")
+    id("dev.thomasharris.lemon.hilt")
 }
 
 android {

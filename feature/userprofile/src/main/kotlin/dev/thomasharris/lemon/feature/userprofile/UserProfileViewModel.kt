@@ -1,8 +1,14 @@
 package dev.thomasharris.lemon.feature.userprofile
 
+import android.content.Context
+import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.github.michaelbull.result.onFailure
 import dagger.Module
 import dagger.Provides
@@ -12,10 +18,13 @@ import dagger.hilt.components.SingletonComponent
 import dev.thomasharris.lemon.core.data.UserRepository
 import dev.thomasharris.lemon.core.model.LobstersUser
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import materialcolorutilities.quantize.QuantizerCelebi
+import materialcolorutilities.scheme.Scheme
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import javax.inject.Inject
@@ -27,6 +36,7 @@ class UserProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     markdownParser: Parser,
     htmlRenderer: HtmlRenderer,
+    private val imageLoader: ImageLoader,
 ) : ViewModel() {
     private val args = UserProfileArgs.fromSavedState(savedStateHandle)
 
@@ -52,6 +62,50 @@ class UserProfileViewModel @Inject constructor(
             initialValue = null,
         )
 
+    // Not super happy with this solution either tbh
+    fun scheme(context: Context): Flow<ThemeInfo?> {
+        // why does loading the image need another context I already gave the ImageLoader one ;__;
+        return user.map { uiState ->
+
+            if (uiState == null)
+                return@map null
+
+            val res = ImageRequest.Builder(context)
+                .data(uiState.user.fullAvatarUrl)
+                .crossfade(true)
+                .allowHardware(false)
+                .build()
+                .let { imageLoader.execute(it) }
+
+            if (res !is SuccessResult)
+                return@map null
+
+            val bitmap = res.drawable.toBitmap()
+            val pixels = IntArray(bitmap.width * bitmap.height)
+
+            bitmap.getPixels(
+                pixels,
+                0,
+                bitmap.width,
+                0,
+                0,
+                bitmap.width,
+                bitmap.height,
+            )
+
+            // TODO idk probably should quantize and score rather than maxColors=1
+            val colors = QuantizerCelebi.quantize(pixels, 1)
+
+            val argb = colors.entries.first().key
+
+            ThemeInfo(
+                keyColor = Color(argb),
+                lightScheme = Scheme.light(argb),
+                darkScheme = Scheme.dark(argb),
+            )
+        }
+    }
+
     val errorChannel = Channel<Throwable>()
 
     init {
@@ -67,9 +121,16 @@ class UserProfileViewModel @Inject constructor(
                 }
         }
     }
+
     data class UiState(
         val user: LobstersUser,
         val renderedAbout: String,
+    )
+
+    data class ThemeInfo(
+        val keyColor: Color,
+        val lightScheme: Scheme,
+        val darkScheme: Scheme,
     )
 }
 
