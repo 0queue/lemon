@@ -11,9 +11,9 @@ import androidx.activity.compose.setContent
 import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     AnimatedNavHost(
                         navController = navController,
                         startDestination = "/",
-                        popEnterTransition = { EnterTransition.None },
+                        popEnterTransition = { fadeIn() },
                         popExitTransition = { ExitTransition.None },
                     ) {
                         installFrontPageRoute(
