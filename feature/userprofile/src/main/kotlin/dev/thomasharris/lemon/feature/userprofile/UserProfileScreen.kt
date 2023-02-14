@@ -4,13 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,7 +32,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -135,7 +139,8 @@ fun UserProfileScreen(
                         UserProfile(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                                .verticalScroll(rememberScrollState()),
                             user = uiState.user,
                             renderedAbout = uiState.renderedAbout,
                             onUsernameClicked = onUsernameClicked,
@@ -180,11 +185,12 @@ fun UserProfile(
 ) {
     Column(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 8.dp),
     ) {
         Box(
             modifier = Modifier
-                .padding(4.dp)
+                .padding(8.dp)
                 .shadow(
                     elevation = 8.dp,
                     shape = CircleShape,
@@ -208,13 +214,15 @@ fun UserProfile(
         Text(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(top = 4.dp),
+                .padding(top = 8.dp),
             text = user.username,
             style = MaterialTheme.typography.labelLarge,
         )
 
         UserInfoTable(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
             user = user,
             now = now,
             onUsernameClicked = onUsernameClicked,
@@ -225,17 +233,16 @@ fun UserProfile(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(top = 32.dp),
                 text = "A mystery...",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
                 fontStyle = FontStyle.Italic,
             )
         } else {
             HtmlText(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(top = 32.dp),
                 text = renderedAbout,
                 onLinkClicked = {
                     if (it != null)
@@ -270,42 +277,59 @@ fun UserInfoTable(
                     start.linkTo(parent.start)
                 },
             text = "Joined",
+            fontWeight = FontWeight.Bold,
         )
 
         if (user.isPrivileged) Text(
             modifier = Modifier
                 .constrainAs(privilegesTitle) {
-                    top.linkTo(joinedContent.bottom)
+                    top.linkTo(joinedContent.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
                 },
             text = "Privileges",
+            fontWeight = FontWeight.Bold,
         )
 
         Text(
             modifier = Modifier
                 .constrainAs(karmaTitle) {
-                    top.linkTo(if (user.isPrivileged) privilegesContent.bottom else joinedContent.bottom)
+                    top.linkTo(
+                        anchor = if (user.isPrivileged)
+                            privilegesContent.bottom
+                        else
+                            joinedContent.bottom,
+                        margin = 8.dp,
+                    )
                     start.linkTo(parent.start)
                 },
             text = "Karma",
+            fontWeight = FontWeight.Bold,
         )
 
         if (user.githubUsername != null) Text(
             modifier = Modifier
                 .constrainAs(githubTitle) {
-                    top.linkTo(karmaContent.bottom)
+                    top.linkTo(karmaContent.bottom, margin = 8.dp)
                     start.linkTo(parent.start)
                 },
             text = "Github",
+            fontWeight = FontWeight.Bold,
         )
 
         if (user.twitterUsername != null) Text(
             modifier = Modifier
                 .constrainAs(twitterTitle) {
-                    top.linkTo(if (user.githubUsername != null) githubContent.bottom else karmaContent.bottom)
+                    top.linkTo(
+                        anchor = if (user.githubUsername != null)
+                            githubContent.bottom
+                        else
+                            karmaContent.bottom,
+                        margin = 8.dp,
+                    )
                     start.linkTo(parent.start)
                 },
             text = "Twitter",
+            fontWeight = FontWeight.Bold,
         )
 
         val barrier = createEndBarrier(
@@ -326,7 +350,7 @@ fun UserInfoTable(
         Box(
             modifier = Modifier
                 .constrainAs(joinedContent) {
-                    start.linkTo(barrier)
+                    start.linkTo(barrier, margin = 16.dp)
                     // TODO baseline alignment from inner android view???
                     top.linkTo(joinedTitle.top)
                     end.linkTo(parent.end)
@@ -360,7 +384,7 @@ fun UserInfoTable(
             Text(
                 modifier = Modifier
                     .constrainAs(privilegesContent) {
-                        start.linkTo(barrier)
+                        start.linkTo(barrier, margin = 16.dp)
                         baseline.linkTo(privilegesTitle.baseline)
                         end.linkTo(parent.end)
 
@@ -375,7 +399,7 @@ fun UserInfoTable(
         Text(
             modifier = Modifier
                 .constrainAs(karmaContent) {
-                    start.linkTo(barrier)
+                    start.linkTo(barrier, margin = 16.dp)
                     baseline.linkTo(karmaTitle.baseline)
                     end.linkTo(parent.end)
 
@@ -389,7 +413,7 @@ fun UserInfoTable(
             Box(
                 modifier = Modifier
                     .constrainAs(githubContent) {
-                        start.linkTo(barrier)
+                        start.linkTo(barrier, margin = 16.dp)
                         top.linkTo(githubTitle.top)
                         end.linkTo(parent.end)
 
@@ -415,7 +439,7 @@ fun UserInfoTable(
             Box(
                 modifier = Modifier
                     .constrainAs(twitterContent) {
-                        start.linkTo(barrier)
+                        start.linkTo(barrier, margin = 16.dp)
                         top.linkTo(twitterTitle.top)
                         end.linkTo(parent.end)
 
