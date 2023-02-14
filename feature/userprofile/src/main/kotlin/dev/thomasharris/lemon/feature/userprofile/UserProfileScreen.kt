@@ -1,6 +1,8 @@
 package dev.thomasharris.lemon.feature.userprofile
 
+import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,16 +22,20 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
@@ -37,9 +44,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.imageLoader
 import coil.request.ImageRequest
+import coil.request.SuccessResult
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
@@ -50,6 +60,8 @@ import dev.thomasharris.lemon.core.ui.rememberSwipeToNavigateState
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import materialcolorutilities.quantize.QuantizerCelebi
+import materialcolorutilities.scheme.Scheme
 
 @Composable
 fun UserProfileRoute(
@@ -100,40 +112,75 @@ fun UserProfileScreen(
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackClicked) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = null, // TODO
+    val context = LocalContext.current
+
+    var userProfileColorScheme: ColorScheme? by remember {
+        mutableStateOf(null)
+    }
+
+    val darkTheme = isSystemInDarkTheme()
+
+    // TODO I think the proper solution would be to inject
+    //      an image loader into the ViewModel
+    //      and map the user flow to include a scheme
+    LaunchedEffect(uiState, darkTheme, context) {
+        val (_, scheme) = uiState
+            ?.generateScheme(darkTheme, context)
+            ?: return@LaunchedEffect
+
+        userProfileColorScheme = scheme.toM3()
+    }
+
+    MaterialTheme(
+        colorScheme = userProfileColorScheme ?: MaterialTheme.colorScheme,
+    ) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            topBar = {
+                UserProfileTopAppBar(
+                    onBackClicked = onBackClicked,
+                    scrollBehavior = scrollBehavior,
+                )
+            },
+            content = { contentPadding ->
+                Box(
+                    modifier = Modifier.padding(contentPadding),
+                ) {
+                    if (uiState != null)
+                        UserProfile(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                            user = uiState.user,
+                            renderedAbout = uiState.renderedAbout,
+                            onUsernameClicked = onUsernameClicked,
+                            onLinkClicked = onLinkClicked,
                         )
-                    }
-                },
-                title = {
-                    Text(text = "User")
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        content = { contentPadding ->
-            Box(
-                modifier = Modifier.padding(contentPadding),
-            ) {
-                if (uiState != null)
-                    UserProfile(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .nestedScroll(scrollBehavior.nestedScrollConnection),
-                        user = uiState.user,
-                        renderedAbout = uiState.renderedAbout,
-                        onUsernameClicked = onUsernameClicked,
-                        onLinkClicked = onLinkClicked,
-                    )
+                }
+            },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserProfileTopAppBar(
+    onBackClicked: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    TopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onBackClicked) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = null, // TODO
+                )
             }
         },
+        title = {
+            Text(text = "User")
+        },
+        scrollBehavior = scrollBehavior,
     )
 }
 
@@ -147,7 +194,8 @@ fun UserProfile(
     now: Instant = Clock.System.now(),
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surface),
     ) {
         Box(
             modifier = Modifier
@@ -409,6 +457,43 @@ fun UserInfoTable(
 private val LobstersUser.isPrivileged: Boolean
     get() = isAdmin || isModerator
 
+suspend fun UserProfileViewModel.UiState.generateScheme(
+    darkTheme: Boolean,
+    context: Context,
+): Pair<Color, Scheme>? {
+    val res = context.imageLoader.execute(
+        ImageRequest.Builder(context)
+            .data(user.fullAvatarUrl)
+            .crossfade(true)
+            .allowHardware(false)
+            .build(),
+    )
+
+    if (res !is SuccessResult)
+        return null
+
+    val bitmap = res.drawable.toBitmap()
+    val pixels = IntArray(bitmap.width * bitmap.height)
+
+    bitmap.getPixels(
+        pixels,
+        0,
+        bitmap.width,
+        0,
+        0,
+        bitmap.width,
+        bitmap.height,
+    )
+
+    // TODO idk probably should quantize and score rather than maxColors=1
+    val colors = QuantizerCelebi.quantize(pixels, 1)
+
+    val argb = colors.entries.first().key
+
+    val generator = if (darkTheme) Scheme::dark else Scheme::light
+    return Color(argb) to generator(argb)
+}
+
 @Preview
 @Composable
 fun UserProfilePreview() {
@@ -435,4 +520,38 @@ fun UserProfilePreview() {
             onLinkClicked = {},
         )
     }
+}
+
+fun Scheme.toM3(): ColorScheme {
+    return ColorScheme(
+        primary = Color(primary),
+        onPrimary = Color(onPrimary),
+        primaryContainer = Color(primaryContainer),
+        onPrimaryContainer = Color(onPrimaryContainer),
+        inversePrimary = Color(inversePrimary),
+        secondary = Color(secondary),
+        onSecondary = Color(onSecondary),
+        secondaryContainer = Color(secondaryContainer),
+        onSecondaryContainer = Color(onSecondaryContainer),
+        tertiary = Color(tertiary),
+        onTertiary = Color(onTertiary),
+        tertiaryContainer = Color(tertiaryContainer),
+        onTertiaryContainer = Color(onTertiaryContainer),
+        background = Color(background),
+        onBackground = Color(onBackground),
+        surface = Color(surface),
+        onSurface = Color(onSurface),
+        surfaceVariant = Color(surfaceVariant),
+        onSurfaceVariant = Color(onSurfaceVariant),
+        surfaceTint = Color(primary), // that's what they do
+        inverseSurface = Color(inverseSurface),
+        inverseOnSurface = Color(inverseOnSurface),
+        error = Color(error),
+        onError = Color(onError),
+        errorContainer = Color(errorContainer),
+        onErrorContainer = Color(onErrorContainer),
+        outline = Color(outline),
+        outlineVariant = Color(outlineVariant),
+        scrim = Color(scrim),
+    )
 }

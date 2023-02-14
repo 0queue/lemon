@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.lemon.core.model)
     implementation(projects.lemon.core.ui)
     implementation(projects.lemon.core.theme)
+    implementation(projects.lemon.core.materialColorUtilities)
 
     implementation(libs.coil)
 
