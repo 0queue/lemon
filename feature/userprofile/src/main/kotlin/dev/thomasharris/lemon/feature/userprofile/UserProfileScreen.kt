@@ -168,7 +168,7 @@ fun UserProfileTopAppBar(
             }
         },
         title = {
-            Text(text = "User")
+            Text(text = "User Profile")
         },
         scrollBehavior = scrollBehavior,
     )
