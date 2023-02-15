@@ -66,7 +66,6 @@ fun Story(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clip(RoundedCornerShape(8.dp))
             .combinedClickable(
                 enabled = onClick != null,
@@ -174,14 +173,16 @@ fun Story(
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 2.dp),
         ) {
             Avatar(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 fullAvatarUrl = story.submitter.fullAvatarUrl,
             )
             Text(
-                modifier = Modifier.padding(2.dp),
+                modifier = Modifier.padding(start = 4.dp),
                 text = story.infoLine(LocalContext.current.resources),
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = if (isCompact) 1 else Int.MAX_VALUE,
@@ -191,6 +192,7 @@ fun Story(
 
         if (!isCompact && story.description.isNotBlank())
             HtmlText(
+                modifier = Modifier.padding(top = 8.dp),
                 text = story.description,
                 onLinkClicked = onLinkClicked,
             )
@@ -205,7 +207,6 @@ fun Avatar(
     AsyncImage(
         modifier = modifier.then(
             Modifier
-                .padding(end = 4.dp)
                 .size(16.dp)
                 .clip(CircleShape),
         ),

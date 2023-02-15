@@ -159,7 +159,9 @@ fun FrontPageScreen(
                                     },
                                     foreground = {
                                         Story(
-                                            modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+                                            modifier = Modifier
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .padding(8.dp),
                                             story = item.story,
                                             onClick = onClick,
                                             onLongClick = onLongClick,
