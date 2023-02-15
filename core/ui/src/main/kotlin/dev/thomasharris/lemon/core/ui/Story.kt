@@ -175,7 +175,7 @@ fun Story(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 2.dp),
+                .padding(top = 4.dp),
         ) {
             Avatar(
                 modifier = Modifier.align(Alignment.CenterVertically),

@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,13 +38,17 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersComment
+import dev.thomasharris.lemon.core.model.LobstersUser
+import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.core.ui.Avatar
 import dev.thomasharris.lemon.core.ui.format
 import dev.thomasharris.lemon.core.ui.isNewUser
 import dev.thomasharris.lemon.core.ui.postedAgo
+import kotlinx.datetime.Instant
 
 // Big ol TODO
 val CommentDepthColors = listOf(
@@ -66,34 +72,35 @@ fun CommentsItem(
 ) {
     // TODO remove this row
     Row(
-        modifier = Modifier
-            .alpha(if (item.score < -2) .7f else 1f)
-            .padding(horizontal = 8.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .combinedClickable(
-                onClick = onItemClicked,
-                onLongClick = onItemLongClicked,
-            )
-            .padding(
-                start = item.indentLevel
-                    .minus(1)
-                    .times(16).dp,
-                top = 4.dp,
-                end = 2.dp,
-                bottom = 8.dp,
-            )
-            .drawBehind {
-                drawRoundRect(
-                    color = item
-                        .indentLevel
-                        .minus(1)
-                        .mod(CommentDepthColors.size)
-                        .let(CommentDepthColors::get),
-                    topLeft = Offset(4.dp.toPx(), 0f),
-                    size = Size(4.dp.toPx(), size.height),
-                    cornerRadius = CornerRadius(8.dp.toPx()),
+        modifier = modifier.then(
+            Modifier
+                .alpha(if (item.score < -2) .7f else 1f)
+                .padding(horizontal = 8.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .combinedClickable(
+                    onClick = onItemClicked,
+                    onLongClick = onItemLongClicked,
                 )
-            },
+                .padding(
+                    start = item.indentLevel
+                        .minus(1)
+                        .times(8).dp,
+                    top = 4.dp,
+                    bottom = 4.dp,
+                )
+                .drawBehind {
+                    drawRoundRect(
+                        color = item
+                            .indentLevel
+                            .minus(1)
+                            .mod(CommentDepthColors.size)
+                            .let(CommentDepthColors::get),
+                        topLeft = Offset(4.dp.toPx(), 0f),
+                        size = Size(4.dp.toPx(), size.height),
+                        cornerRadius = CornerRadius(8.dp.toPx()),
+                    )
+                },
+        ),
     ) {
         Column(
             modifier = Modifier
@@ -108,7 +115,9 @@ fun CommentsItem(
                     fullAvatarUrl = item.commentingUser.fullAvatarUrl,
                 )
                 Text(
+                    modifier = Modifier.padding(start = 4.dp),
                     text = item.infoLine(storyAuthor, LocalContext.current.resources),
+                    style = MaterialTheme.typography.bodySmall,
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -123,9 +132,8 @@ fun CommentsItem(
                     )
                 }
 
-                val rotation by animateFloatAsState(targetValue = if (item.isCompact()) 180f else 0f)
+                val rotation by animateFloatAsState(targetValue = if (item.isCompact()) 0f else 180f)
 
-                // TODO try to animate and rotate it?
                 Icon(
                     modifier = Modifier
                         .rotate(rotation)
@@ -141,17 +149,12 @@ fun CommentsItem(
                 )
             }
 
-            AnimatedVisibility(
-                visible = !item.isCompact(),
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
+            if (!item.isCompact())
                 HtmlText(
                     text = item.comment,
-                    modifier = modifier,
+                    modifier = Modifier.padding(top = 4.dp),
                     onLinkClicked = onLinkClicked,
                 )
-            }
         }
     }
 }
@@ -193,6 +196,49 @@ fun LobstersComment.infoLine(
         if (scoreText != null) {
             append(" | ")
             append(scoreText)
+        }
+    }
+}
+
+@Composable
+@Preview
+fun CommentPreview() {
+    val instant = Instant.parse("2022-11-20T12:26:06.406253Z")
+
+    val comment = LobstersComment(
+        shortId = "asdf",
+        storyId = "whatever",
+        commentIndex = 1,
+        createdAt = instant,
+        updatedAt = instant,
+        isDeleted = false,
+        isModerated = false,
+        score = 12,
+        comment = """<p>Here is a comment that is very high effort and spans multiple lines on my pixel</p>""",
+        indentLevel = 1,
+        commentingUser = LobstersUser(
+            username = "0queue",
+            createdAt = instant,
+            isAdmin = false,
+            about = "I do things on Android and other Linux systems",
+            isModerator = false,
+            karma = 1_000_000,
+            avatarUrl = "/avatars/jcs-200.png",
+            invitedByUser = null,
+            githubUsername = "0queue",
+            twitterUsername = null,
+        ),
+        visibility = LobstersComment.Visibility.VISIBLE,
+        childCount = 3,
+    )
+
+    LemonForLobstersTheme {
+        Surface {
+            CommentsItem(
+                item = comment,
+                storyAuthor = "0queue",
+                onLinkClicked = {},
+            )
         }
     }
 }
