@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.lemon.core.data)
     implementation(projects.lemon.core.model)
     implementation(projects.lemon.core.ui)
+    implementation(projects.lemon.core.materialColorUtilities)
 
     implementation(libs.androidx.compose.material2)
     implementation(libs.androidx.paging.runtime)

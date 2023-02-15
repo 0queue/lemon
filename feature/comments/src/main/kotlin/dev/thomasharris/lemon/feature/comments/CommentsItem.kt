@@ -44,20 +44,13 @@ import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
+import dev.thomasharris.lemon.core.theme.customColors
+import dev.thomasharris.lemon.core.theme.harmonize
 import dev.thomasharris.lemon.core.ui.Avatar
 import dev.thomasharris.lemon.core.ui.format
 import dev.thomasharris.lemon.core.ui.isNewUser
 import dev.thomasharris.lemon.core.ui.postedAgo
 import kotlinx.datetime.Instant
-
-// Big ol TODO
-val CommentDepthColors = listOf(
-    Color.Red,
-    Color.Green,
-    Color.Blue,
-    Color.Yellow,
-    Color.Cyan,
-)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -70,6 +63,9 @@ fun CommentsItem(
     onItemLongClicked: () -> Unit = {},
     onDropDownClicked: () -> Unit = {},
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val customColors = MaterialTheme.colorScheme.customColors
+
     // TODO remove this row
     Row(
         modifier = modifier.then(
@@ -93,8 +89,8 @@ fun CommentsItem(
                         color = item
                             .indentLevel
                             .minus(1)
-                            .mod(CommentDepthColors.size)
-                            .let(CommentDepthColors::get),
+                            .mod(customColors.size)
+                            .let(customColors::get),
                         topLeft = Offset(4.dp.toPx(), 0f),
                         size = Size(4.dp.toPx(), size.height),
                         cornerRadius = CornerRadius(8.dp.toPx()),
@@ -116,7 +112,11 @@ fun CommentsItem(
                 )
                 Text(
                     modifier = Modifier.padding(start = 4.dp),
-                    text = item.infoLine(storyAuthor, LocalContext.current.resources),
+                    text = item.infoLine(
+                        storyAuthor = storyAuthor,
+                        resources = LocalContext.current.resources,
+                        harmonize = colorScheme::harmonize,
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                 )
 
@@ -164,11 +164,12 @@ fun LobstersComment.isCompact() = visibility == LobstersComment.Visibility.COMPA
 fun LobstersComment.infoLine(
     storyAuthor: String,
     resources: Resources,
+    harmonize: (Color) -> Color,
 ): AnnotatedString {
     return buildAnnotatedString {
         val color = when {
-            commentingUser.username == storyAuthor -> Color.Blue
-            commentingUser.isNewUser() -> Color.Green
+            commentingUser.username == storyAuthor -> Color.Blue.let(harmonize)
+            commentingUser.isNewUser() -> Color.Green.let(harmonize)
             else -> Color.Unspecified
         }
 
