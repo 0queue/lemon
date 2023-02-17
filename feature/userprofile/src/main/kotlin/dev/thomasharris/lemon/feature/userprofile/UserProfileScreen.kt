@@ -48,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
+import dev.thomasharris.lemon.core.datastore.ThemeBrightness
 import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.core.ui.SwipeToNavigate
@@ -111,7 +112,12 @@ fun UserProfileScreen(
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
-    val darkTheme = isSystemInDarkTheme()
+    val darkTheme = when (themeInfo?.settings?.themeBrightness) {
+        ThemeBrightness.SYSTEM -> isSystemInDarkTheme()
+        ThemeBrightness.DAY -> false
+        ThemeBrightness.NIGHT -> true
+        null -> false // doesn't actually matter
+    }
 
     val colorScheme = themeInfo
         ?.let { if (darkTheme) it.darkScheme else it.lightScheme }

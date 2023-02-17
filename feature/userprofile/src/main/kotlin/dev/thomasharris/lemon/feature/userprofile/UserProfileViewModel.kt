@@ -3,6 +3,7 @@ package dev.thomasharris.lemon.feature.userprofile
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,10 +17,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.components.SingletonComponent
 import dev.thomasharris.lemon.core.data.UserRepository
+import dev.thomasharris.lemon.core.datastore.Settings
 import dev.thomasharris.lemon.core.model.LobstersUser
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -37,6 +40,7 @@ class UserProfileViewModel @Inject constructor(
     markdownParser: Parser,
     htmlRenderer: HtmlRenderer,
     private val imageLoader: ImageLoader,
+    private val settingsDataStore: DataStore<Settings>,
 ) : ViewModel() {
     private val args = UserProfileArgs.fromSavedState(savedStateHandle)
 
@@ -65,10 +69,10 @@ class UserProfileViewModel @Inject constructor(
     // Not super happy with this solution either tbh
     fun scheme(context: Context): Flow<ThemeInfo?> {
         // why does loading the image need another context I already gave the ImageLoader one ;__;
-        return user.map { uiState ->
+        return user.combine(settingsDataStore.data) { uiState, settings ->
 
             if (uiState == null)
-                return@map null
+                return@combine null
 
             val res = ImageRequest.Builder(context)
                 .data(uiState.user.fullAvatarUrl)
@@ -78,7 +82,7 @@ class UserProfileViewModel @Inject constructor(
                 .let { imageLoader.execute(it) }
 
             if (res !is SuccessResult)
-                return@map null
+                return@combine null
 
             val bitmap = res.drawable.toBitmap()
             val pixels = IntArray(bitmap.width * bitmap.height)
@@ -102,6 +106,7 @@ class UserProfileViewModel @Inject constructor(
                 keyColor = Color(argb),
                 lightScheme = Scheme.light(argb),
                 darkScheme = Scheme.dark(argb),
+                settings = settings,
             )
         }
     }
@@ -131,6 +136,7 @@ class UserProfileViewModel @Inject constructor(
         val keyColor: Color,
         val lightScheme: Scheme,
         val darkScheme: Scheme,
+        val settings: Settings,
     )
 }
 
