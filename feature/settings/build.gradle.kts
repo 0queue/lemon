@@ -9,6 +9,7 @@ android {
 dependencies {
     implementation(projects.lemon.core.ui)
     implementation(projects.lemon.core.theme)
+    implementation(projects.lemon.core.datastore)
 
     implementation(libs.kotlin.result)
 }

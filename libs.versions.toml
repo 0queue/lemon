@@ -35,6 +35,7 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
 androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha07"
 androidx-core = "androidx.core:core-ktx:1.9.0"
+androidx-datastore = "androidx.datastore:datastore:1.0.0"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
 androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"

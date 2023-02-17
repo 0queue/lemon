@@ -11,14 +11,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import dev.thomasharris.lemon.core.datastore.Settings
 import dev.thomasharris.lemon.core.ui.SwipeToNavigate
 import dev.thomasharris.lemon.core.ui.rememberSwipeToNavigateState
 
 @Composable
 fun SettingsRoute(
+    viewModel: SettingsViewModel = hiltViewModel(),
     onBackClicked: () -> Unit,
 ) {
+    val settings by viewModel.settings.collectAsState()
+
     val swipeToNavigateState = rememberSwipeToNavigateState {
         onBackClicked()
     }
@@ -27,6 +34,7 @@ fun SettingsRoute(
         state = swipeToNavigateState,
         content = {
             SettingsScreen(
+                settings = settings,
                 onBackClicked = onBackClicked,
             )
         },
@@ -36,6 +44,7 @@ fun SettingsRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    settings: Settings,
     onBackClicked: () -> Unit,
 ) {
     Scaffold(
@@ -58,7 +67,8 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier.padding(contentPadding),
             ) {
-                Text("Settings")
+                Text("theme brightness: ${settings.themeBrightness}")
+                Text("theme dynamic: ${settings.themeDynamic}")
             }
         },
     )
