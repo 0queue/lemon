@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -50,6 +53,7 @@ fun FrontPageRoute(
     onClick: (String) -> Unit,
     onLongClick: (String) -> Unit,
     onUrlSwiped: (String?) -> Unit,
+    onSettingsClicked: () -> Unit,
 ) {
     val pages = viewModel.pages.collectAsLazyPagingItems()
 
@@ -58,6 +62,7 @@ fun FrontPageRoute(
         onLongClick = onLongClick,
         pages = pages,
         onUrlSwiped = onUrlSwiped,
+        onSettingsClicked = onSettingsClicked,
     )
 }
 
@@ -72,6 +77,7 @@ fun FrontPageScreen(
     onLongClick: (String) -> Unit,
     pages: LazyPagingItems<FrontPageItem>,
     onUrlSwiped: (String?) -> Unit,
+    onSettingsClicked: () -> Unit,
 ) {
     val topAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
@@ -98,6 +104,17 @@ fun FrontPageScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(text = "Lemon for Lobsters")
+                },
+                actions = {
+                    IconButton(
+                        onClick = onSettingsClicked,
+                        content = {
+                            Icon(
+                                imageVector = Icons.Filled.Settings,
+                                contentDescription = null, // TODO
+                            )
+                        },
+                    )
                 },
                 scrollBehavior = scrollBehavior,
             )

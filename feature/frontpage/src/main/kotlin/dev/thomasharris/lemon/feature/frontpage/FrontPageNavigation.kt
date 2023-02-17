@@ -17,6 +17,7 @@ fun NavGraphBuilder.installFrontPageRoute(
     onClick: (String) -> Unit,
     onLongClick: (String) -> Unit,
     onUrlSwiped: (String?) -> Unit,
+    onSettingsClicked: () -> Unit,
 ) {
     composable(
         route = ROUTE,
@@ -28,6 +29,7 @@ fun NavGraphBuilder.installFrontPageRoute(
             onClick = onClick,
             onLongClick = onLongClick,
             onUrlSwiped = onUrlSwiped,
+            onSettingsClicked = onSettingsClicked,
         )
     }
 }

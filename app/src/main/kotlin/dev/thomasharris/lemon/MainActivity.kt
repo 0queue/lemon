@@ -32,6 +32,8 @@ import dev.thomasharris.lemon.feature.comments.R
 import dev.thomasharris.lemon.feature.comments.installCommentsRoute
 import dev.thomasharris.lemon.feature.comments.navigateToComments
 import dev.thomasharris.lemon.feature.frontpage.installFrontPageRoute
+import dev.thomasharris.lemon.feature.settings.installSettingsRoute
+import dev.thomasharris.lemon.feature.settings.navigateToSettings
 import dev.thomasharris.lemon.feature.userprofile.installUserProfileRoute
 import dev.thomasharris.lemon.feature.userprofile.navigateToUserProfile
 
@@ -75,6 +77,7 @@ class MainActivity : ComponentActivity() {
                             onClick = navController::navigateToComments,
                             onLongClick = navController::navigateToUserProfile,
                             onUrlSwiped = openUrl,
+                            onSettingsClicked = navController::navigateToSettings,
                         )
 
                         installCommentsRoute(
@@ -87,6 +90,10 @@ class MainActivity : ComponentActivity() {
                             onBackClicked = navController::popBackStack,
                             onUsernameClicked = navController::navigateToUserProfile,
                             onLinkClicked = openUrl,
+                        )
+
+                        installSettingsRoute(
+                            onBackClicked = navController::popBackStack,
                         )
                     }
                 }

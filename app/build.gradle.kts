@@ -58,6 +58,7 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.feature.comments)
     implementation(projects.feature.frontpage)
+    implementation(projects.feature.settings)
     implementation(projects.feature.userprofile)
 
     implementation(libs.kotlinx.coroutines.android)
