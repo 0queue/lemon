@@ -48,8 +48,9 @@ import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.betterhtml.getBoundingBoxes
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.model.LobstersUser
+import dev.thomasharris.lemon.core.theme.CustomColors
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
-import dev.thomasharris.lemon.core.theme.harmonize
+import dev.thomasharris.lemon.core.theme.LocalCustomColors
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.net.URI
@@ -182,10 +183,9 @@ fun Story(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 fullAvatarUrl = story.submitter.fullAvatarUrl,
             )
-            val colorScheme = MaterialTheme.colorScheme
             Text(
                 modifier = Modifier.padding(start = 4.dp),
-                text = story.infoLine(LocalContext.current.resources, colorScheme::harmonize),
+                text = story.infoLine(LocalContext.current.resources, LocalCustomColors.current),
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = if (isCompact) 1 else Int.MAX_VALUE,
                 overflow = if (isCompact) TextOverflow.Ellipsis else TextOverflow.Clip,
@@ -222,7 +222,7 @@ fun Avatar(
 
 fun LobstersStory.infoLine(
     resources: Resources,
-    harmonize: (Color) -> Color,
+    customColors: CustomColors,
 ): AnnotatedString {
     return buildAnnotatedString {
         append("%+d".format(score))
@@ -230,7 +230,7 @@ fun LobstersStory.infoLine(
         append("by ")
 
         if (submitter.isNewUser())
-            withStyle(SpanStyle(color = Color.Green.let(harmonize))) {
+            withStyle(SpanStyle(color = customColors.newUser)) {
                 append(submitter.username)
             }
         else

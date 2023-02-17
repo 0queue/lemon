@@ -43,9 +43,9 @@ import androidx.compose.ui.unit.dp
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersUser
+import dev.thomasharris.lemon.core.theme.CustomColors
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
-import dev.thomasharris.lemon.core.theme.customColors
-import dev.thomasharris.lemon.core.theme.harmonize
+import dev.thomasharris.lemon.core.theme.LocalCustomColors
 import dev.thomasharris.lemon.core.ui.Avatar
 import dev.thomasharris.lemon.core.ui.format
 import dev.thomasharris.lemon.core.ui.isNewUser
@@ -63,8 +63,7 @@ fun CommentsItem(
     onItemLongClicked: () -> Unit = {},
     onDropDownClicked: () -> Unit = {},
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val customColors = MaterialTheme.colorScheme.customColors
+    val customColors = LocalCustomColors.current
 
     // TODO remove this row
     Row(
@@ -89,8 +88,8 @@ fun CommentsItem(
                         color = item
                             .indentLevel
                             .minus(1)
-                            .mod(customColors.size)
-                            .let(customColors::get),
+                            .mod(customColors.indentColors.size)
+                            .let(customColors.indentColors::get),
                         topLeft = Offset(4.dp.toPx(), 0f),
                         size = Size(4.dp.toPx(), size.height),
                         cornerRadius = CornerRadius(8.dp.toPx()),
@@ -115,7 +114,7 @@ fun CommentsItem(
                     text = item.infoLine(
                         storyAuthor = storyAuthor,
                         resources = LocalContext.current.resources,
-                        harmonize = colorScheme::harmonize,
+                        customColors = LocalCustomColors.current,
                     ),
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -164,12 +163,12 @@ fun LobstersComment.isCompact() = visibility == LobstersComment.Visibility.COMPA
 fun LobstersComment.infoLine(
     storyAuthor: String,
     resources: Resources,
-    harmonize: (Color) -> Color,
+    customColors: CustomColors,
 ): AnnotatedString {
     return buildAnnotatedString {
         val color = when {
-            commentingUser.username == storyAuthor -> Color.Blue.let(harmonize)
-            commentingUser.isNewUser() -> Color.Green.let(harmonize)
+            commentingUser.username == storyAuthor -> customColors.author
+            commentingUser.isNewUser() -> customColors.newUser
             else -> Color.Unspecified
         }
 
