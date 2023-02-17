@@ -54,6 +54,7 @@ dependencies {
     implementation(projects.core.model)
     implementation(projects.core.data)
     implementation(projects.core.database)
+    implementation(projects.core.datastore)
     implementation(projects.core.theme)
     implementation(projects.core.ui)
     implementation(projects.feature.comments)
