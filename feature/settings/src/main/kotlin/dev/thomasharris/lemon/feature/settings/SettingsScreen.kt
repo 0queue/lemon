@@ -1,29 +1,38 @@
 package dev.thomasharris.lemon.feature.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.thomasharris.lemon.core.datastore.Settings
 import dev.thomasharris.lemon.core.datastore.ThemeBrightness
+import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.core.ui.SwipeToNavigate
 import dev.thomasharris.lemon.core.ui.rememberSwipeToNavigateState
 
@@ -76,81 +85,99 @@ fun SettingsScreen(
             )
         },
         content = { contentPadding ->
-            Column(
-                modifier = Modifier.padding(contentPadding),
-            ) {
-                Text("theme brightness: ${settings.themeBrightness}")
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    Button(
-                        onClick = { onBrightnessChanged(ThemeBrightness.SYSTEM) },
-                        content = {
-                            Text(
-                                text = "System",
-                                fontWeight = if (settings.themeBrightness == ThemeBrightness.SYSTEM) FontWeight.Bold else null,
-                            )
-                        },
-                    )
-
-                    Button(
-                        onClick = { onBrightnessChanged(ThemeBrightness.DAY) },
-                        content = {
-                            Text(
-                                text = "Day",
-                                fontWeight = if (settings.themeBrightness == ThemeBrightness.DAY) FontWeight.Bold else null,
-                            )
-                        },
-                    )
-
-                    Button(
-                        onClick = { onBrightnessChanged(ThemeBrightness.NIGHT) },
-                        content = {
-                            Text(
-                                text = "Night",
-                                fontWeight = if (settings.themeBrightness == ThemeBrightness.NIGHT) FontWeight.Bold else null,
-                            )
-                        },
-                    )
-                }
-
-                Divider(
-                    modifier = Modifier.padding(
-                        horizontal = 16.dp,
-                        vertical = 8.dp,
-                    ),
-                    thickness = 1.dp,
-                )
-
-                Text("theme dynamic: ${settings.themeDynamic}")
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    Button(
-                        onClick = { onDynamicChanged(true) },
-                        content = {
-                            Text(
-                                text = "Dynamic",
-                                fontWeight = if (settings.themeDynamic) FontWeight.Bold else null,
-                            )
-                        },
-                    )
-
-                    Button(
-                        onClick = { onDynamicChanged(false) },
-                        content = {
-                            Text(
-                                text = "Not Dynamic",
-                                fontWeight = if (!settings.themeDynamic) FontWeight.Bold else null,
-                            )
-                        },
-                    )
-                }
-            }
+            SettingsColumn(
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .padding(horizontal = 8.dp),
+                settings = settings,
+                onBrightnessChanged = onBrightnessChanged,
+                onDynamicChanged = onDynamicChanged,
+            )
         },
     )
+}
+
+@Composable
+fun SettingsColumn(
+    settings: Settings,
+    onBrightnessChanged: (ThemeBrightness) -> Unit,
+    onDynamicChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.then(
+            Modifier
+                .fillMaxWidth(),
+        ),
+    ) {
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = "Theme",
+            style = MaterialTheme.typography.titleMedium,
+        )
+
+        // TODO segmented button when those are ready
+        ThemeBrightness.values().forEach { themeBrightness ->
+            Row(
+                modifier = Modifier
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .selectable(
+                        selected = settings.themeBrightness == themeBrightness,
+                        onClick = { onBrightnessChanged(themeBrightness) },
+                        role = Role.RadioButton,
+                    )
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    selected = settings.themeBrightness == themeBrightness,
+                    onClick = null,
+                )
+                Text(
+                    modifier = Modifier.padding(start = 8.dp),
+                    text = when (themeBrightness) {
+                        ThemeBrightness.SYSTEM -> "System"
+                        ThemeBrightness.DAY -> "Day"
+                        ThemeBrightness.NIGHT -> "Night"
+                    },
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Dynamic",
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Switch(
+                checked = settings.themeDynamic,
+                onCheckedChange = onDynamicChanged,
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+fun SettingsColumnPreview() {
+    LemonForLobstersTheme {
+        Surface {
+            SettingsColumn(
+                settings = Settings(
+                    themeBrightness = ThemeBrightness.SYSTEM,
+                    themeDynamic = true,
+                ),
+                onBrightnessChanged = {},
+                onDynamicChanged = {},
+            )
+        }
+    }
 }
