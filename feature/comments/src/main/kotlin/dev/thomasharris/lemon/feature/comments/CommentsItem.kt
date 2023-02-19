@@ -128,6 +128,7 @@ fun CommentsItem(
                 ) {
                     Text(
                         text = item.childCount.toString(10),
+                        style = MaterialTheme.typography.bodySmall,
                     )
                 }
 

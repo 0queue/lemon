@@ -41,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
@@ -80,7 +79,7 @@ fun Story(
             )
             .padding(8.dp),
     ) {
-        val baseTitleSize = 18.sp
+        val baseTitleSize = MaterialTheme.typography.titleMedium.fontSize
         val tagSizeScale = .85f
 
         val title = buildAnnotatedString {
@@ -119,8 +118,7 @@ fun Story(
                 .drawBehind { onDraw() }
                 .fillMaxWidth(),
             text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontSize = baseTitleSize, // but not too large
+            style = MaterialTheme.typography.titleMedium,
             onTextLayout = { layoutResult ->
                 // hmmm
                 val colorfulTextBounds = listOf(
