@@ -3,7 +3,7 @@ plugins {
 }
 
 kotlinDslPluginOptions {
-    jvmTarget.set("11")
+    jvmTarget.set("17")
 }
 
 gradlePlugin {
@@ -31,6 +31,11 @@ gradlePlugin {
         register("feature") {
             id = "dev.thomasharris.lemon.feature"
             implementationClass = "LemonFeatureConventionPlugin"
+        }
+
+        register("kotlin") {
+            id = "dev.thomasharris.lemon.kotlin"
+            implementationClass = "LemonKotlinConventionPlugin"
         }
     }
 }

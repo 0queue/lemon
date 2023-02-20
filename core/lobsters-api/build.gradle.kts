@@ -1,6 +1,6 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    alias(libs.plugins.org.jetbrains.kotlin.jvm)
+    id("dev.thomasharris.lemon.kotlin")
     alias(libs.plugins.org.jetbrains.kotlin.serialization)
 }
 
