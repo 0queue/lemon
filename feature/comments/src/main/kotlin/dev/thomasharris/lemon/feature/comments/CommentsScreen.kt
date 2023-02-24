@@ -143,6 +143,7 @@ fun CommentsScreen(
                 ) {
                     if (story != null) item {
                         Story(
+                            modifier = Modifier.padding(8.dp),
                             story = story,
                             onClick = {
                                 // TODO shouldn't even be clickable if no url?
