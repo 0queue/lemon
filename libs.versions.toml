@@ -1,6 +1,6 @@
 [versions]
 android-plugin = "7.4.2"
-compose = "1.4.0-beta02"
+compose = "1.4.0-rc01"
 compose-compiler = "1.4.2"
 kotlin = "1.8.10"
 ktor = "2.2.4"
@@ -27,19 +27,19 @@ app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.
 androidx-activity = "androidx.activity:activity-compose:1.6.1"
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 androidx-browser = "androidx.browser:browser:1.5.0"
-androidx-compose-material3 = "androidx.compose.material3:material3:1.1.0-alpha07"
-androidx-compose-material2 = "androidx.compose.material:material:1.4.0-beta02"
+androidx-compose-material3 = "androidx.compose.material3:material3:1.1.0-alpha08"
+androidx-compose-material2 = "androidx.compose.material:material:1.4.0-rc01"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
-androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha07"
+androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha08"
 androidx-core = "androidx.core:core-ktx:1.9.0"
 androidx-datastore = "androidx.datastore:datastore:1.0.0"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
-androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
-androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
-androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.6.0"
+androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0"
+androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0"
 androidx-paging-runtime = "androidx.paging:paging-runtime:3.2.0-alpha04"
 androidx-paging-compose = "androidx.paging:paging-compose:1.0.0-alpha18"
 androidx-navigation = "androidx.navigation:navigation-compose:2.5.3"
