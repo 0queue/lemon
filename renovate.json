@@ -1,14 +1,29 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "group:all"
+  ],
   "schedule": [
     "on friday"
   ],
   "packageRules": [
     {
       "matchPackagePatterns": [
-        "*"
+        "androidx.compose.compiler:compiler"
       ],
-      "groupName": "all"
+      "groupName": "kotlin"
+    },
+    {
+      "matchPackagePatterns": [
+        "org.jetbrains.kotlin.*"
+      ],
+      "groupName": "kotlin"
+    },
+    {
+      "matchPackagePatterns": [
+        "com.google.devtools.ksp"
+      ],
+      "groupName": "kotlin"
     }
   ]
 }
