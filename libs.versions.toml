@@ -1,5 +1,5 @@
 [versions]
-android-plugin = "7.4.2"
+android-plugin = "8.0.0"
 compose = "1.4.0"
 compose-compiler = "1.4.2"
 kotlin = "1.8.10"
