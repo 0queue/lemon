@@ -27,6 +27,7 @@ app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.
 androidx-activity = "androidx.activity:activity-compose:1.7.1"
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 androidx-browser = "androidx.browser:browser:1.5.0"
+androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler"}
 androidx-compose-material3 = "androidx.compose.material3:material3:1.1.0-rc01"
 androidx-compose-material2 = "androidx.compose.material:material:1.4.3"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
