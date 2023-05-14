@@ -5,7 +5,7 @@ compose-compiler = "1.4.7"
 kotlin = "1.8.21"
 ktor = "2.3.0"
 kotlin-result = "1.1.17"
-hilt = "2.46"
+hilt = "2.46.1"
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -28,14 +28,14 @@ androidx-activity = "androidx.activity:activity-compose:1.7.1"
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 androidx-browser = "androidx.browser:browser:1.5.0"
 androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler"}
-androidx-compose-material3 = "androidx.compose.material3:material3:1.1.0-rc01"
+androidx-compose-material3 = "androidx.compose.material3:material3:1.1.0"
 androidx-compose-material2 = "androidx.compose.material:material:1.4.3"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
 androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha09"
-androidx-core = "androidx.core:core-ktx:1.10.0"
+androidx-core = "androidx.core:core-ktx:1.10.1"
 androidx-datastore = "androidx.datastore:datastore:1.0.0"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
 androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
@@ -52,7 +52,7 @@ com-google-accompanist-navigation = "com.google.accompanist:accompanist-navigati
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
-com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.18.0"
+com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.19.1"
 
 jsoup = "org.jsoup:jsoup:1.16.1"
 
