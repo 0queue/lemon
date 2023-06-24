@@ -43,7 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemKey
 import dev.thomasharris.lemon.core.ui.Story
 import dev.thomasharris.lemon.core.ui.requireNotPlaceholder
 
@@ -132,14 +132,15 @@ fun FrontPageScreen(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     items(
-                        items = pages,
-                        key = {
+                        count = pages.itemCount,
+                        key = pages.itemKey {
                             when (it) {
                                 is FrontPageItem.Story -> it.story.shortId
                                 is FrontPageItem.Separator -> "uniquekey:${it.pageNumber}"
                             }
                         },
-                    ) { item ->
+                    ) { idx ->
+                        val item = pages[idx]
                         requireNotPlaceholder(item)
 
                         when (item) {

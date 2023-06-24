@@ -41,7 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemKey
 import dev.thomasharris.lemon.core.model.LobstersComment
 import dev.thomasharris.lemon.core.model.LobstersStory
 import dev.thomasharris.lemon.core.ui.Story
@@ -169,9 +169,10 @@ fun CommentsScreen(
                         }
                     else {
                         items(
-                            items = pages,
-                            key = { comment -> comment.shortId },
-                        ) { item ->
+                            count = pages.itemCount,
+                            key = pages.itemKey { comment -> comment.shortId },
+                        ) { idx ->
+                            val item = pages[idx]
                             requireNotPlaceholder(item)
 
                             CommentsItem(
