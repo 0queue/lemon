@@ -1,8 +1,8 @@
 [versions]
 android-plugin = "8.0.2"
 compose = "1.4.3"
-compose-compiler = "1.4.7"
-kotlin = "1.8.21"
+compose-compiler = "1.5.1"
+kotlin = "1.9.0"
 ktor = "2.3.1"
 kotlin-result = "1.1.18"
 hilt = "2.46.1"
@@ -64,8 +64,8 @@ ktor-kotlinx-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json
 kotlin-result = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlin-result" }
 kotlin-result-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-result-coroutines", version.ref = "kotlin-result" }
 
-kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
-kotlinx-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1"
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+kotlinx-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 kotlinx-datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1"
 
