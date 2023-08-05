@@ -13,10 +13,10 @@ import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
 fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     commonExtension.run {
-        compileSdk = 33
+        compileSdk = 34
 
         defaultConfig {
             minSdk = 23
@@ -39,7 +39,7 @@ fun Project.configureKotlinAndroid(
 }
 
 fun Project.configureCompose(
-    commonExtension: CommonExtension<*, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *>,
 ) {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 

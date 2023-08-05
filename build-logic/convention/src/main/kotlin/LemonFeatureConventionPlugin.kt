@@ -24,7 +24,6 @@ class LemonFeatureConventionPlugin : Plugin<Project> {
 
             add("implementation", libs.findLibrary("androidx.navigation").get())
             add("implementation", libs.findLibrary("androidx.hilt.navigation.compose").get())
-            add("implementation", libs.findLibrary("com.google.accompanist.navigation").get())
         }
     }
 }

@@ -1,11 +1,11 @@
 [versions]
-android-plugin = "8.0.2"
-compose = "1.4.3"
-compose-compiler = "1.4.7"
-kotlin = "1.8.21"
-ktor = "2.3.1"
+android-plugin = "8.1.0"
+compose = "1.5.0-rc01"
+compose-compiler = "1.5.1"
+kotlin = "1.9.0"
+ktor = "2.3.3"
 kotlin-result = "1.1.18"
-hilt = "2.46.1"
+hilt = "2.47"
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -15,14 +15,14 @@ org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.re
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 org-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-app-cash-sqldelight = "app.cash.sqldelight:2.0.0-rc01"
+app-cash-sqldelight = "app.cash.sqldelight:2.0.0"
 
 [libraries]
 desugar = "com.android.tools:desugar_jdk_libs:2.0.3"
 
-app-cash-sqldelight-android-driver = "app.cash.sqldelight:android-driver:2.0.0-rc01"
-app-cash-sqldelight-coroutines = "app.cash.sqldelight:coroutines-extensions-jvm:2.0.0-rc01"
-app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.0.0-rc01"
+app-cash-sqldelight-android-driver = "app.cash.sqldelight:android-driver:2.0.0"
+app-cash-sqldelight-coroutines = "app.cash.sqldelight:coroutines-extensions-jvm:2.0.0"
+app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.0.0"
 
 androidx-activity = "androidx.activity:activity-compose:1.7.2"
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
@@ -34,25 +34,23 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref 
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
-androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha10"
+androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha11"
 androidx-core = "androidx.core:core-ktx:1.10.1"
 androidx-datastore = "androidx.datastore:datastore:1.0.0"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
 androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
 androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
 androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
-androidx-paging-runtime = "androidx.paging:paging-runtime:3.2.0-rc01"
-androidx-paging-compose = "androidx.paging:paging-compose:1.0.0-alpha20"
-androidx-navigation = "androidx.navigation:navigation-compose:2.6.0"
+androidx-paging-runtime = "androidx.paging:paging-runtime:3.2.0"
+androidx-paging-compose = "androidx.paging:paging-compose:3.2.0"
+androidx-navigation = "androidx.navigation:navigation-compose:2.7.0-rc01"
 
 coil = "io.coil-kt:coil-compose:2.4.0"
-
-com-google-accompanist-navigation = "com.google.accompanist:accompanist-navigation-animation:0.30.1"
 
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
-com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.20.0"
+com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.21.1"
 
 jsoup = "org.jsoup:jsoup:1.16.1"
 
@@ -64,8 +62,8 @@ ktor-kotlinx-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json
 kotlin-result = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlin-result" }
 kotlin-result-coroutines = { module = "com.michael-bull.kotlin-result:kotlin-result-coroutines", version.ref = "kotlin-result" }
 
-kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
-kotlinx-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1"
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+kotlinx-coroutines-android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 kotlinx-datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1"
 

@@ -28,8 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.thomasharris.lemon.core.datastore.ThemeBrightness
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    val navController = rememberAnimatedNavController()
+                    val navController = rememberNavController()
 
                     val context = LocalContext.current
                     val closeButtonIcon = remember(context) {
@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    AnimatedNavHost(
+                    NavHost(
                         navController = navController,
                         startDestination = "/",
                         popEnterTransition = { fadeIn() },
