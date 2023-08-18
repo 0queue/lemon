@@ -1,6 +1,6 @@
 [versions]
 android-plugin = "8.1.0"
-compose = "1.5.0-rc01"
+compose = "1.5.0"
 compose-compiler = "1.5.1"
 kotlin = "1.9.0"
 ktor = "2.3.3"
@@ -26,15 +26,15 @@ app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.
 
 androidx-activity = "androidx.activity:activity-compose:1.7.2"
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
-androidx-browser = "androidx.browser:browser:1.5.0"
+androidx-browser = "androidx.browser:browser:1.6.0"
 androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler"}
 androidx-compose-material3 = "androidx.compose.material3:material3:1.1.1"
-androidx-compose-material2 = "androidx.compose.material:material:1.4.3"
+androidx-compose-material2 = "androidx.compose.material:material:1.5.0"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
-androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha11"
+androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha12"
 androidx-core = "androidx.core:core-ktx:1.10.1"
 androidx-datastore = "androidx.datastore:datastore:1.0.0"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
@@ -43,7 +43,7 @@ androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1
 androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
 androidx-paging-runtime = "androidx.paging:paging-runtime:3.2.0"
 androidx-paging-compose = "androidx.paging:paging-compose:3.2.0"
-androidx-navigation = "androidx.navigation:navigation-compose:2.7.0-rc01"
+androidx-navigation = "androidx.navigation:navigation-compose:2.7.0"
 
 coil = "io.coil-kt:coil-compose:2.4.0"
 
