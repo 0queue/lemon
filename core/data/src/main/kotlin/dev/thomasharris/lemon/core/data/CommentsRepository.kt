@@ -292,30 +292,27 @@ private class MyList constructor(
     commentCount: Int,
 ) {
 
-    private val stack = MutableList(lastIndentLevel.minus(1).plus(1)) { commentCount }
+    private val stack = MutableList(lastIndentLevel) { commentCount }
 
     // TODO plenty of zero length checks and such
     fun set(indentLevel: Int, siblingOrParentIndex: Int) {
-        val zeroBasedIndentLevel = indentLevel.minus(1)
-
         // extend
-        if (zeroBasedIndentLevel > stack.size.minus(1)) {
-            // SAFETY: Throws if stack is empty.
-            val extendWith = stack.last()
-            val extension = List(zeroBasedIndentLevel.minus(stack.size.minus(1))) { extendWith }
+        if (indentLevel > stack.size.minus(1)) {
+            val extendWith = stack.lastOrNull() ?: 0
+            val extension = List(indentLevel.minus(stack.size.minus(1))) { extendWith }
             stack.addAll(extension)
         }
 
         // update
-        stack[zeroBasedIndentLevel] = siblingOrParentIndex
+        stack[indentLevel] = siblingOrParentIndex
 
         // trim
-        for (i in zeroBasedIndentLevel.plus(1) until stack.size) {
+        for (i in indentLevel.plus(1) until stack.size) {
             stack.removeAt(i)
         }
     }
 
-    fun get(indentLevel: Int) = stack.getOrNull(indentLevel.minus(1))
+    fun get(indentLevel: Int) = stack.getOrNull(indentLevel)
 
     override fun toString() = stack.toString()
 }

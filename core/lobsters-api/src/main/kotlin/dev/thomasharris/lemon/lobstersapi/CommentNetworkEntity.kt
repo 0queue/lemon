@@ -15,6 +15,6 @@ data class CommentNetworkEntity(
     val score: Int,
     val comment: String,
     val url: String,
-    @SerialName("indent_level") val indentLevel: Int, // starts at 1
+    @SerialName("depth") val indentLevel: Int, // starts at 0
     @SerialName("commenting_user") val commentingUser: UserNetworkEntity,
 )

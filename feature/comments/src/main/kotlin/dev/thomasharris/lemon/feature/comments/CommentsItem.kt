@@ -78,7 +78,6 @@ fun CommentsItem(
                 )
                 .padding(
                     start = item.indentLevel
-                        .minus(1)
                         .times(8).dp,
                     top = 4.dp,
                     bottom = 4.dp,
@@ -87,7 +86,6 @@ fun CommentsItem(
                     drawRoundRect(
                         color = item
                             .indentLevel
-                            .minus(1)
                             .mod(customColors.indentColors.size)
                             .let(customColors.indentColors::get),
                         topLeft = Offset(4.dp.toPx(), 0f),
@@ -216,7 +214,7 @@ fun CommentPreview() {
         isModerated = false,
         score = 12,
         comment = """<p>Here is a comment that is very high effort and spans multiple lines on my pixel</p>""",
-        indentLevel = 1,
+        indentLevel = 0,
         commentingUser = LobstersUser(
             username = "0queue",
             createdAt = instant,

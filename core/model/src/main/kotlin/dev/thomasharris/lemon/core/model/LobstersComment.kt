@@ -12,7 +12,7 @@ data class LobstersComment(
     val isModerated: Boolean,
     val score: Int,
     val comment: String,
-    val indentLevel: Int, // starts at 1
+    val indentLevel: Int, // starts at 0
     val commentingUser: LobstersUser,
     val visibility: Visibility,
     val childCount: Int,
