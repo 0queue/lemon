@@ -141,7 +141,7 @@ fun CommentsScreen(
                     contentPadding = innerPadding,
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    if (story != null) item {
+                    if (story != null) item(key = story.shortId) {
                         Story(
                             modifier = Modifier.padding(8.dp),
                             story = story,
@@ -158,7 +158,7 @@ fun CommentsScreen(
                     }
 
                     if (pages.itemCount == 0)
-                        item {
+                        item(key = "no-comments-spacer") {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
                                 text = "No comments",
@@ -192,7 +192,7 @@ fun CommentsScreen(
                             )
                         }
 
-                        item {
+                        item(key = "spacer-end-of-list") {
                             Spacer(modifier = Modifier.size(64.dp))
                         }
                     }

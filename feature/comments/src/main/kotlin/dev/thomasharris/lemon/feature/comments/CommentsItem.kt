@@ -98,7 +98,8 @@ fun CommentsItem(
         Column(
             modifier = Modifier
                 .padding(start = 12.dp)
-                .animateContentSize(),
+            // TODO idk why but when scrolling this makes things weirder, probably something to do with AnimatedVisibility?
+//                .animateContentSize(),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
