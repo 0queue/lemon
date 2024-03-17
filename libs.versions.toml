@@ -15,7 +15,7 @@ com-google-devtools-ksp = { id = "com.google.devtools.ksp", version = "1.9.23-1.
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 org-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-app-cash-sqldelight = "app.cash.sqldelight:2.0.0"
+app-cash-sqldelight = "app.cash.sqldelight:2.0.1"
 
 [libraries]
 desugar = "com.android.tools:desugar_jdk_libs:2.0.4"
