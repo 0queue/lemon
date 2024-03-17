@@ -17,7 +17,6 @@ import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.core.database.Story
 import dev.thomasharris.lemon.core.database.User
 import dev.thomasharris.lemon.core.model.LobstersStory
-import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import dev.thomasharris.lemon.lobstersapi.StoryNetworkEntity
 import dev.thomasharris.lemon.lobstersapi.UserNetworkEntity
@@ -47,10 +46,40 @@ class PageRepository @Inject constructor(
         context = Dispatchers.IO,
         queryProvider = { limit, offset ->
             Log.i("TEH", "QueryPagingSource queryProvider limit=$limit offset=$offset")
-            lobstersDatabase.storyQueries.getStoriesOnFrontPageWithUsers(
+            lobstersDatabase.storyQueries.getStoriesOnFrontPage(
                 limit = limit,
                 offset = offset,
-                mapper = mapper,
+                mapper = {
+                        shortId: String,
+                        title: String,
+                        createdAt: Instant,
+                        url: String,
+                        score: Int,
+                        commentCount: Int,
+                        description: String,
+                        username: String,
+                        tags: List<String>,
+                        pageIndex: Int,
+                        pageSubIndex: Int?,
+                        _: Instant,
+                        userIsAuthor: Boolean,
+                    ->
+
+                    LobstersStory(
+                        shortId = shortId,
+                        createdAt = createdAt,
+                        title = title,
+                        url = url,
+                        score = score,
+                        commentCount = commentCount,
+                        description = description,
+                        submitter = username,
+                        tags = tags,
+                        pageIndex = pageIndex,
+                        pageSubIndex = pageSubIndex,
+                        submitterIsAuthor = userIsAuthor,
+                    )
+                },
             )
         },
     ).also {
@@ -88,9 +117,6 @@ class PageRepository @Inject constructor(
                             pageSubIndex = index,
                             insertedAt = now,
                         ),
-                    )
-                    lobstersDatabase.userQueries.insertUser(
-                        user = story.submitter.asDbUser(),
                     )
                 }
             }
@@ -144,6 +170,7 @@ class PageMediator @Inject constructor(
                     .mapError(MediatorResult::Error)
                     .merge()
             }
+
             LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
             LoadType.APPEND -> {
                 val numberOfLoadedStories = state.pages.sumOf { page ->
@@ -206,11 +233,12 @@ fun StoryNetworkEntity.asDbStory(
     score = score,
     commentCount = commentCount,
     description = description,
-    username = submitter.username,
+    username = submitter,
     tags = tags,
     pageIndex = pageIndex,
     pageSubIndex = pageSubIndex,
     insertedAt = insertedAt,
+    userIsAuthor = userIsAuthor,
 )
 
 fun UserNetworkEntity.asDbUser(): User = User(
@@ -226,56 +254,3 @@ fun UserNetworkEntity.asDbUser(): User = User(
     githubUsername = githubUsername,
     twitterUsername = twitterUsername,
 )
-
-// not sure why this can't be a function
-internal val mapper = {
-        shortId: String,
-        createdAt: Instant,
-        title: String,
-        url: String,
-        score: Int,
-        commentCount: Int,
-        description: String,
-        tags: List<String>,
-        pageIndex: Int,
-        // TODO probably is non null, should update query to select where not null
-        pageSubIndex: Int?,
-        username: String,
-        userCreatedAt: Instant,
-        isAdmin: Boolean,
-        about: String,
-        isModerator: Boolean,
-        karma: Int,
-        avatarShortUrl: String,
-        invitedByUser: String?,
-        githubUsername: String?,
-        twitterUsername: String?,
-    ->
-
-    val user = LobstersUser(
-        username = username,
-        createdAt = userCreatedAt,
-        about = about,
-        isAdmin = isAdmin,
-        isModerator = isModerator,
-        karma = karma,
-        avatarUrl = avatarShortUrl,
-        invitedByUser = invitedByUser,
-        githubUsername = githubUsername,
-        twitterUsername = twitterUsername,
-    )
-
-    LobstersStory(
-        shortId = shortId,
-        createdAt = createdAt,
-        title = title,
-        url = url,
-        score = score,
-        commentCount = commentCount,
-        description = description,
-        submitter = user,
-        tags = tags,
-        pageIndex = pageIndex,
-        pageSubIndex = pageSubIndex,
-    )
-}

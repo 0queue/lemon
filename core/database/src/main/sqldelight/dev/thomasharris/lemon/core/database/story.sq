@@ -16,7 +16,8 @@ CREATE TABLE story (
     tags TEXT AS List<String> NOT NULL,
     pageIndex INTEGER AS Int,
     pageSubIndex INTEGER AS Int,
-    insertedAt INTEGER AS Instant NOT NULL
+    insertedAt INTEGER AS Instant NOT NULL,
+    userIsAuthor INTEGER AS Boolean NOT NULL
 );
 
 ---

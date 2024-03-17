@@ -2,7 +2,6 @@ package dev.thomasharris.lemon.feature.comments
 
 import android.content.res.Resources
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -42,13 +41,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.thomasharris.lemon.core.betterhtml.HtmlText
 import dev.thomasharris.lemon.core.model.LobstersComment
-import dev.thomasharris.lemon.core.model.LobstersUser
 import dev.thomasharris.lemon.core.theme.CustomColors
 import dev.thomasharris.lemon.core.theme.LemonForLobstersTheme
 import dev.thomasharris.lemon.core.theme.LocalCustomColors
 import dev.thomasharris.lemon.core.ui.Avatar
+import dev.thomasharris.lemon.core.ui.asUserAvatarUrl
 import dev.thomasharris.lemon.core.ui.format
-import dev.thomasharris.lemon.core.ui.isNewUser
 import dev.thomasharris.lemon.core.ui.postedAgo
 import kotlinx.datetime.Instant
 
@@ -97,7 +95,7 @@ fun CommentsItem(
     ) {
         Column(
             modifier = Modifier
-                .padding(start = 12.dp)
+                .padding(start = 12.dp),
             // TODO idk why but when scrolling this makes things weirder, probably something to do with AnimatedVisibility?
 //                .animateContentSize(),
         ) {
@@ -106,7 +104,7 @@ fun CommentsItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Avatar(
-                    fullAvatarUrl = item.commentingUser.fullAvatarUrl,
+                    fullAvatarUrl = item.commentingUser.asUserAvatarUrl(),
                 )
                 Text(
                     modifier = Modifier.padding(start = 4.dp),
@@ -167,13 +165,14 @@ fun LobstersComment.infoLine(
 ): AnnotatedString {
     return buildAnnotatedString {
         val color = when {
-            commentingUser.username == storyAuthor -> customColors.author
-            commentingUser.isNewUser() -> customColors.newUser
+            commentingUser == storyAuthor -> customColors.author
+            // TODO sadge api
+//            commentingUser.isNewUser() -> customColors.newUser
             else -> Color.Unspecified
         }
 
         withStyle(SpanStyle(color = color)) {
-            append(commentingUser.username)
+            append(commentingUser)
             append(" ")
         }
 
@@ -216,18 +215,7 @@ fun CommentPreview() {
         score = 12,
         comment = """<p>Here is a comment that is very high effort and spans multiple lines on my pixel</p>""",
         indentLevel = 0,
-        commentingUser = LobstersUser(
-            username = "0queue",
-            createdAt = instant,
-            isAdmin = false,
-            about = "I do things on Android and other Linux systems",
-            isModerator = false,
-            karma = 1_000_000,
-            avatarUrl = "/avatars/jcs-200.png",
-            invitedByUser = null,
-            githubUsername = "0queue",
-            twitterUsername = null,
-        ),
+        commentingUser = "0queue",
         visibility = LobstersComment.Visibility.VISIBLE,
         childCount = 3,
     )

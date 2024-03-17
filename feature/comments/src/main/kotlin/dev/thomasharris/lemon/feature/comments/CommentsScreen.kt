@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -30,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -120,7 +119,7 @@ fun CommentsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null, // TODO
                         )
                     }
@@ -178,13 +177,13 @@ fun CommentsScreen(
                             CommentsItem(
                                 modifier = Modifier.animateItemPlacement(),
                                 item = item,
-                                storyAuthor = story?.submitter?.username ?: "",
+                                storyAuthor = story?.submitter ?: "",
                                 onLinkClicked = onUrlClicked,
                                 onItemClicked = {
                                     onItemClicked(item)
                                 },
                                 onItemLongClicked = {
-                                    onItemLongClicked(item.commentingUser.username)
+                                    onItemLongClicked(item.commentingUser)
                                 },
                                 onDropDownClicked = {
                                     onItemDropDownClicked(item)

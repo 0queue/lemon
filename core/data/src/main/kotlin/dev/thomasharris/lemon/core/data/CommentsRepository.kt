@@ -45,9 +45,38 @@ class CommentsRepository @Inject constructor(
         storyId: String,
     ): Flow<LobstersStory?> = lobstersDatabase
         .storyQueries
-        .getStoryWithUser(
-            storyId = storyId,
-            mapper = storyMapper,
+        .getStory(
+            shortId = storyId,
+            mapper = {
+                    shortId: String,
+                    title: String,
+                    createdAt: Instant,
+                    url: String,
+                    score: Int,
+                    commentCount: Int,
+                    description: String,
+                    username: String,
+                    tags: List<String>,
+                    pageIndex: Int?,
+                    pageSubIndex: Int?,
+                    _: Instant,
+                    userIsAuthor: Boolean,
+                ->
+                LobstersStory(
+                    shortId = shortId,
+                    createdAt = createdAt,
+                    title = title,
+                    url = url,
+                    score = score,
+                    commentCount = commentCount,
+                    description = description,
+                    submitter = username,
+                    tags = tags,
+                    pageIndex = pageIndex,
+                    pageSubIndex = pageSubIndex,
+                    submitterIsAuthor = userIsAuthor,
+                )
+            },
         )
         .asFlow()
         .map { query ->
@@ -63,11 +92,42 @@ class CommentsRepository @Inject constructor(
         transacter = lobstersDatabase.commentQueries,
         context = Dispatchers.IO,
         queryProvider = { limit, offset ->
-            lobstersDatabase.commentQueries.getVisibleCommentsWithUserByStoryId(
+            lobstersDatabase.commentQueries.getVisibleCommentsByStoryId(
                 storyId = storyId,
                 limit = limit,
                 offset = offset,
-                mapper = commentMapper,
+                mapper = {
+                        shortId: String,
+                        storyId: String,
+                        commentIndex: Int,
+                        createdAt: Instant,
+                        updatedAt: Instant,
+                        isDeleted: Boolean,
+                        isModerated: Boolean,
+                        score: Int,
+                        comment: String,
+                        indentLevel: Int,
+                        username: String,
+                        _: Instant,
+                        visibility: CommentVisibility,
+                        childCount: Int,
+                    ->
+                    LobstersComment(
+                        shortId = shortId,
+                        storyId = storyId,
+                        commentIndex = commentIndex,
+                        createdAt = createdAt,
+                        updatedAt = updatedAt,
+                        isDeleted = isDeleted,
+                        isModerated = isModerated,
+                        score = score,
+                        comment = comment,
+                        indentLevel = indentLevel,
+                        commentingUser = username,
+                        visibility = visibility.toModel(),
+                        childCount = childCount,
+                    )
+                },
             )
         },
     )
@@ -115,8 +175,8 @@ class CommentsRepository @Inject constructor(
                             ),
                         )
 
-                    lobstersDatabase.userQueries
-                        .insertUser(comment.commentingUser.asDbUser())
+//                    lobstersDatabase.userQueries
+//                        .insertUser(comment.commentingUser.asDbUser())
                 }
             }
         }
@@ -170,11 +230,13 @@ class CommentsRepository @Inject constructor(
 
                             currentIndentLevel = c.indentLevel
                         }
+
                         c.indentLevel == currentIndentLevel ->
                             lobstersDatabase.commentQueries.setVisibility(
                                 visibility = CommentVisibility.COMPACT,
                                 shortId = c.shortId,
                             )
+
                         else ->
                             lobstersDatabase.commentQueries.setVisibility(
                                 visibility = CommentVisibility.GONE,
@@ -241,6 +303,7 @@ class CommentsMediator @AssistedInject constructor(
                     .mapError(MediatorResult::Error)
                     .merge()
             }
+
             LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
             LoadType.APPEND -> MediatorResult.Success(endOfPaginationReached = true)
         }
@@ -333,7 +396,7 @@ private fun CommentNetworkEntity.asDbComment(
     score = score,
     comment = comment,
     indentLevel = indentLevel,
-    username = commentingUser.username,
+    username = commentingUser,
     insertedAt = insertedAt,
     visibility = CommentVisibility.VISIBLE,
     childCount = childCount,
@@ -351,110 +414,6 @@ fun LobstersComment.Visibility.toDB() = when (this) {
     LobstersComment.Visibility.GONE -> CommentVisibility.GONE
 }
 
-private val commentMapper = {
-        shortId: String,
-        storyId: String,
-        commentIndex: Int,
-        createdAt: Instant,
-        updatedAt: Instant,
-        isDeleted: Boolean,
-        isModerated: Boolean,
-        score: Int,
-        comment: String,
-        indentLevel: Int,
-        visibility: CommentVisibility,
-        childCount: Int,
-        username: String,
-        userCreatedAt: Instant,
-        isAdmin: Boolean,
-        about: String,
-        isModerator: Boolean,
-        karma: Int,
-        avatarShortUrl: String,
-        invitedByUser: String?,
-        githubUsername: String?,
-        twitterUsername: String?,
-    ->
-
-    val user = LobstersUser(
-        username = username,
-        createdAt = userCreatedAt,
-        about = about,
-        isAdmin = isAdmin,
-        isModerator = isModerator,
-        karma = karma,
-        avatarUrl = avatarShortUrl,
-        invitedByUser = invitedByUser,
-        githubUsername = githubUsername,
-        twitterUsername = twitterUsername,
-    )
-
-    LobstersComment(
-        shortId = shortId,
-        storyId = storyId,
-        commentIndex = commentIndex,
-        createdAt = createdAt,
-        updatedAt = updatedAt,
-        isDeleted = isDeleted,
-        isModerated = isModerated,
-        score = score,
-        comment = comment,
-        indentLevel = indentLevel,
-        commentingUser = user,
-        visibility = visibility.toModel(),
-        childCount = childCount,
-    )
-}
-
-private val storyMapper = {
-        shortId: String,
-        createdAt: Instant,
-        title: String,
-        url: String,
-        score: Int,
-        commentCount: Int,
-        description: String,
-        tags: List<String>,
-        username: String,
-        userCreatedAt: Instant,
-        isAdmin: Boolean,
-        about: String,
-        isModerator: Boolean,
-        karma: Int,
-        avatarShortUrl: String,
-        invitedByUser: String?,
-        githubUsername: String?,
-        twitterUsername: String?,
-    ->
-
-    val user = LobstersUser(
-        username = username,
-        createdAt = userCreatedAt,
-        about = about,
-        isAdmin = isAdmin,
-        isModerator = isModerator,
-        karma = karma,
-        avatarUrl = avatarShortUrl,
-        invitedByUser = invitedByUser,
-        githubUsername = githubUsername,
-        twitterUsername = twitterUsername,
-    )
-
-    LobstersStory(
-        shortId = shortId,
-        createdAt = createdAt,
-        title = title,
-        url = url,
-        score = score,
-        commentCount = commentCount,
-        description = description,
-        submitter = user,
-        tags = tags,
-        pageIndex = null,
-        pageSubIndex = null,
-    )
-}
-
 internal val userMapper = {
         username: String,
         createdAt: Instant,
@@ -466,7 +425,8 @@ internal val userMapper = {
         invitedByUser: String?,
         insertedAt: Instant,
         githubUsername: String?,
-        twitterUsername: String?, ->
+        twitterUsername: String?,
+    ->
 
     LobstersUser(
         username = username,

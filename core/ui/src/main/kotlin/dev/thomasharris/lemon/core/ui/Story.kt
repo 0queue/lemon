@@ -74,7 +74,7 @@ fun Story(
                     onClick?.invoke(story.shortId)
                 },
                 onLongClick = {
-                    onLongClick?.invoke(story.submitter.username)
+                    onLongClick?.invoke(story.submitter)
                 },
             )
             .padding(8.dp),
@@ -179,7 +179,7 @@ fun Story(
         ) {
             Avatar(
                 modifier = Modifier.align(Alignment.CenterVertically),
-                fullAvatarUrl = story.submitter.fullAvatarUrl,
+                fullAvatarUrl = story.submitter.asUserAvatarUrl(),
             )
             Text(
                 modifier = Modifier.padding(start = 4.dp),
@@ -225,14 +225,20 @@ fun LobstersStory.infoLine(
     return buildAnnotatedString {
         append("%+d".format(score))
         append(" | ")
-        append("by ")
 
-        if (submitter.isNewUser())
-            withStyle(SpanStyle(color = customColors.newUser)) {
-                append(submitter.username)
-            }
+        if (submitterIsAuthor)
+            append("by ")
         else
-            append(submitter.username)
+            append("via ")
+
+        // TODO when they fix their api I guess
+//        if (submitter.isNewUser())
+//            withStyle(SpanStyle(color = customColors.newUser)) {
+//                append(submitter.username)
+//            }
+//        else
+//            append(submitter.username)
+        append(submitter)
 
         append(" ${createdAt.postedAgo().format(resources)} ")
         append(resources.getQuantityString(R.plurals.numberOfComments, commentCount, commentCount))
@@ -321,6 +327,7 @@ fun String.toTagColors(): TagColors {
             stroke = Color(0xFFF0B2B8),
             fill = Color(0xFFf9ddde),
         )
+
         "kind:meta" -> TagColors(
             stroke = Color(0xFFc8c8c8),
             fill = Color(0xFFeeeeee),
@@ -339,6 +346,8 @@ fun String.toTagColors(): TagColors {
         else -> error("you should finally make some enums or whatever")
     }
 }
+
+fun String.asUserAvatarUrl() = "https://lobste.rs/avatars/$this-100.png"
 
 @Preview(showBackground = true)
 @Composable
@@ -367,21 +376,11 @@ class LobstersStoryPreviewProvider : PreviewParameterProvider<LobstersStory> {
             score = 10,
             commentCount = 17,
             description = "Here is a description",
-            submitter = LobstersUser(
-                username = "0queue",
-                createdAt = instant,
-                isAdmin = false,
-                about = "I do things on Android and other Linux systems",
-                isModerator = false,
-                karma = 1_000_000,
-                avatarUrl = "/avatars/jcs-200.png",
-                invitedByUser = null,
-                githubUsername = "0queue",
-                twitterUsername = null,
-            ),
+            submitter = "0queue",
             tags = listOf("stuff", "things"),
             pageIndex = 0,
             pageSubIndex = null,
+            submitterIsAuthor = false,
         ),
     )
 }

@@ -20,8 +20,10 @@ data class StoryNetworkEntity(
     val commentCount: Int,
     val description: String,
     @SerialName("submitter_user")
-    val submitter: UserNetworkEntity,
+    val submitter: String,
     val tags: List<String>,
+    @SerialName("user_is_author")
+    var userIsAuthor: Boolean,
     // if null, this is the dehydrated model from a page
     val comments: List<CommentNetworkEntity>? = null,
 )

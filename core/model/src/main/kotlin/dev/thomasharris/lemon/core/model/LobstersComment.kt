@@ -13,7 +13,7 @@ data class LobstersComment(
     val score: Int,
     val comment: String,
     val indentLevel: Int, // starts at 0
-    val commentingUser: LobstersUser,
+    val commentingUser: String,
     val visibility: Visibility,
     val childCount: Int,
 ) {

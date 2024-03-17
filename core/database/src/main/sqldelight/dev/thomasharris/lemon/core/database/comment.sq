@@ -62,6 +62,16 @@ ORDER BY commentIndex ASC
 LIMIT :limit
 OFFSET :offset;
 
+getVisibleCommentsByStoryId:
+SELECT
+    *
+FROM comment c
+WHERE storyId = :storyId
+AND c.visibility != "GONE"
+ORDER BY commentIndex ASC
+LIMIT :limit
+OFFSET :offset;
+
 getOldestComment:
 SELECT
     min(insertedAt)
