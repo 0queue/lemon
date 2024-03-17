@@ -32,6 +32,7 @@ getStoriesOnFrontPage:
 SELECT *
 FROM story
 WHERE pageIndex IS NOT NULL
+ORDER BY pageIndex, pageSubIndex
 LIMIT :limit
 OFFSET :offset;
 
