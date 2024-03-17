@@ -8,7 +8,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import app.cash.sqldelight.paging3.QueryPagingSource
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.merge
@@ -45,25 +45,24 @@ class PageRepository @Inject constructor(
         countQuery = lobstersDatabase.storyQueries.countStoriesOnFrontPage(),
         transacter = lobstersDatabase,
         context = Dispatchers.IO,
-    ) { limit, offset ->
-
-        Log.i("TEH", "QueryPagingSource queryProvider limit=$limit offset=$offset")
-        lobstersDatabase.storyQueries.getStoriesOnFrontPageWithUsers(
-            limit = limit,
-            offset = offset,
-            mapper = mapper,
-        )
-    }.also {
+        queryProvider = { limit, offset ->
+            Log.i("TEH", "QueryPagingSource queryProvider limit=$limit offset=$offset")
+            lobstersDatabase.storyQueries.getStoriesOnFrontPageWithUsers(
+                limit = limit,
+                offset = offset,
+                mapper = mapper,
+            )
+        },
+    ).also {
         it.registerInvalidatedCallback {
             Log.i("TEH", ">>> INVALIDATED <<<")
         }
     }
 
-    @Suppress("RedundantUnitExpression")
     suspend fun loadPage(
         pageIndex: Int,
         clearStories: Boolean = false,
-    ): Result<Unit, Throwable> = binding {
+    ): Result<Unit, Throwable> = coroutineBinding {
         Log.i(
             "TEH",
             "PageRepository.loadPage(pageIndex = $pageIndex, clearStories = $clearStories)",
@@ -103,7 +102,7 @@ class PageRepository @Inject constructor(
     suspend fun isOutOfDate(): Boolean {
         val oldestStory = withContext(Dispatchers.IO) {
             lobstersDatabase.storyQueries.getOldestStory().executeAsOneOrNull()
-        }?.min?.let(Instant::fromEpochMilliseconds)
+        }?.min
 
         return if (oldestStory != null) {
             val duration = Clock.System

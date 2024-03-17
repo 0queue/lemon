@@ -9,7 +9,7 @@ import androidx.paging.RemoteMediator
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.paging3.QueryPagingSource
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.mapError
 import com.github.michaelbull.result.merge
@@ -62,19 +62,20 @@ class CommentsRepository @Inject constructor(
         countQuery = lobstersDatabase.commentQueries.countCommentsWithStoryId(storyId),
         transacter = lobstersDatabase.commentQueries,
         context = Dispatchers.IO,
-    ) { limit, offset ->
-        lobstersDatabase.commentQueries.getVisibleCommentsWithUserByStoryId(
-            storyId = storyId,
-            limit = limit,
-            offset = offset,
-            mapper = commentMapper,
-        )
-    }
+        queryProvider = { limit, offset ->
+            lobstersDatabase.commentQueries.getVisibleCommentsWithUserByStoryId(
+                storyId = storyId,
+                limit = limit,
+                offset = offset,
+                mapper = commentMapper,
+            )
+        },
+    )
 
     suspend fun loadComments(
         storyId: String,
         clearComments: Boolean = false,
-    ): Result<Unit, Throwable> = binding {
+    ): Result<Unit, Throwable> = coroutineBinding {
         val (story, comments) = lobstersService.getStory(storyId)
             .onFailure { t -> Log.e("TEH", "lobstersService.getStory failed", t) }
             .bind()
@@ -197,7 +198,6 @@ class CommentsRepository @Inject constructor(
             .getOldestComment(storyId)
             .executeAsOneOrNull()
             ?.min
-            ?.let(Instant::fromEpochMilliseconds)
             ?: return@withContext true
 
         val isOld = Clock.System

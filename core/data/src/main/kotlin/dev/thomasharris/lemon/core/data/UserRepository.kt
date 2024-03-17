@@ -1,7 +1,7 @@
 package dev.thomasharris.lemon.core.data
 
 import app.cash.sqldelight.coroutines.asFlow
-import com.github.michaelbull.result.coroutines.binding.binding
+import com.github.michaelbull.result.coroutines.coroutineBinding
 import dev.thomasharris.lemon.core.database.LobstersDatabase
 import dev.thomasharris.lemon.lobstersapi.LobstersService
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +30,7 @@ class UserRepository @Inject constructor(
         }
 
     suspend fun refreshUser(username: String) = withContext(Dispatchers.IO) {
-        binding {
+        coroutineBinding {
             val user = lobstersService
                 .getUser(username)
                 .bind()
