@@ -1,11 +1,11 @@
 [versions]
-android-plugin = "8.3.0"
-compose = "1.6.3"
+android-plugin = "8.3.1"
+compose = "1.6.4"
 compose-compiler = "1.5.10"
 kotlin = "1.9.22"
 ktor = "2.3.9"
 kotlin-result = "2.0.0"
-hilt = "2.51"
+hilt = "2.51.1"
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -29,7 +29,7 @@ androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 androidx-browser = "androidx.browser:browser:1.8.0"
 androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 androidx-compose-material3 = "androidx.compose.material3:material3:1.2.1"
-androidx-compose-material2 = "androidx.compose.material:material:1.6.3"
+androidx-compose-material2 = "androidx.compose.material:material:1.6.4"
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
