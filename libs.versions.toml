@@ -1,8 +1,8 @@
 [versions]
 android-plugin = "8.3.1"
 compose = "1.6.4"
-compose-compiler = "1.5.10"
-kotlin = "1.9.22"
+compose-compiler = "1.5.11"
+kotlin = "1.9.23"
 ktor = "2.3.9"
 kotlin-result = "2.0.0"
 hilt = "2.51.1"
@@ -11,7 +11,7 @@ hilt = "2.51.1"
 com-android-application = { id = "com.android.application", version.ref = "android-plugin" }
 com-android-library = { id = "com.android.library", version.ref = "android-plugin" }
 com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-com-google-devtools-ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.18" }
+com-google-devtools-ksp = { id = "com.google.devtools.ksp", version = "1.9.23-1.0.19" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 org-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
