@@ -25,7 +25,7 @@ app-cash-sqldelight-coroutines = "app.cash.sqldelight:coroutines-extensions-jvm:
 app-cash-sqldelight-paging = "app.cash.sqldelight:androidx-paging3-extensions:2.0.2"
 
 androidx-activity = "androidx.activity:activity-compose:1.9.0"
-androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
+androidx-appcompat = "androidx.appcompat:appcompat:1.7.0"
 androidx-browser = "androidx.browser:browser:1.8.0"
 androidx-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 androidx-compose-material3 = "androidx.compose.material3:material3:1.2.1"
@@ -38,9 +38,9 @@ androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:
 androidx-core = "androidx.core:core-ktx:1.13.1"
 androidx-datastore = "androidx.datastore:datastore:1.1.1"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.2.0"
-androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.8.0"
-androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0"
-androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0"
+androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.8.1"
+androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1"
+androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1"
 androidx-paging-runtime = "androidx.paging:paging-runtime:3.3.0"
 androidx-paging-compose = "androidx.paging:paging-compose:3.3.0"
 androidx-navigation = "androidx.navigation:navigation-compose:2.7.7"
@@ -50,7 +50,7 @@ coil = "io.coil-kt:coil-compose:2.6.0"
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
-com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.27.1"
+com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.28.0"
 
 jsoup = "org.jsoup:jsoup:1.17.2"
 
