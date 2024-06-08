@@ -22,6 +22,8 @@ class LemonComposeConventionPlugin : Plugin<Project> {
                     configureCompose(this)
                 }
             }
+
+            apply("org.jetbrains.kotlin.plugin.compose")
         }
     }
 }

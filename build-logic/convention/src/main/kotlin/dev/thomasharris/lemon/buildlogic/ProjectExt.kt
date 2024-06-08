@@ -41,20 +41,13 @@ fun Project.configureKotlinAndroid(
 fun Project.configureCompose(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
     commonExtension.run {
         buildFeatures {
             compose = true
         }
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs
-                .findVersion("compose-compiler")
-                .get()
-                .toString()
-        }
     }
+
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     dependencies {
         add("debugImplementation", libs.findLibrary("androidx.compose.ui.tooling").get())
