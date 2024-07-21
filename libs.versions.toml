@@ -1,5 +1,5 @@
 [versions]
-android-plugin = "8.5.0"
+android-plugin = "8.5.1"
 compose = "1.6.8"
 kotlin = "2.0.0"
 ktor = "2.3.12"
@@ -37,21 +37,21 @@ androidx-constraintlayout = "androidx.constraintlayout:constraintlayout-compose:
 androidx-core = "androidx.core:core-ktx:1.13.1"
 androidx-datastore = "androidx.datastore:datastore:1.1.1"
 androidx-hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.2.0"
-androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.8.2"
-androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2"
-androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2"
+androidx-lifecycle = "androidx.lifecycle:lifecycle-runtime-ktx:2.8.3"
+androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3"
+androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3"
 androidx-paging-runtime = "androidx.paging:paging-runtime:3.3.0"
 androidx-paging-compose = "androidx.paging:paging-compose:3.3.0"
 androidx-navigation = "androidx.navigation:navigation-compose:2.7.7"
 
-coil = "io.coil-kt:coil-compose:2.6.0"
+coil = "io.coil-kt:coil-compose:2.7.0"
 
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
-com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.28.0"
+com-google-errorprone-annotations = "com.google.errorprone:error_prone_annotations:2.29.2"
 
-jsoup = "org.jsoup:jsoup:1.17.2"
+jsoup = "org.jsoup:jsoup:1.18.1"
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
