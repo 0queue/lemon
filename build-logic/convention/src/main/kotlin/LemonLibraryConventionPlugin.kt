@@ -14,7 +14,7 @@ class LemonLibraryConventionPlugin : Plugin<Project> {
         extensions.configure<LibraryExtension> {
             configureKotlinAndroid(this)
             // little weird how both have targetSdk but not in CommonExtension
-            defaultConfig.targetSdk = 33
+            defaultConfig.targetSdk = 35
         }
     }
 }
